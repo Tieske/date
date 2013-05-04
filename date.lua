@@ -1,4 +1,4 @@
---[[LuaDate version:2.0.1]]-------------------------------
+--[[LuaDate version:2.1.0]]-------------------------------
 --[[------------------------------------------------------
 	Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
 	All Rights Deserved.
@@ -201,7 +201,7 @@
 	local date = {}
 	setmetatable(date, date)
 -- Version:  VMMMRRRR; V-Major, M-Minor, R-Revision;  e.g. 5.45.321 == 50450321
-	date.version = 20000000 -- 2.0.0
+	date.version = 20010000 -- 2.1.0
 --#end -- not DATE_OBJECT_AFX
 --[[ THE DATE OBJECT ]]--
 	local dobj = {}

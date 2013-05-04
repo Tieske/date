@@ -1,4 +1,4 @@
-LuaDate v2
+LuaDate v2.1
 
 Lua Date and Time module for Lua 5.x.
 
@@ -10,3 +10,7 @@ Features:
 	* Local time support.
 	* Lua module (not binary).
 	* Formats Date and Time like strftime.
+  
+Changes:
+ v2.1 Lua 5.2 support. Global 'date' will no longer be set.
+ v2.0 original by Jas Latrix

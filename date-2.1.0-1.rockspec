@@ -1,5 +1,5 @@
 package = "date"
-version = "2.0.1-1"
+version = "2.1.0-1"
 
 description = {
    summary = "Date & Time module for Lua 5.x",
@@ -9,16 +9,16 @@ description = {
       ISO 8601 Dates, local time support, strftime-like formatting.
    ]],
    license = "Public Domain",
-   homepage = "http://luaforge.net/projects/date/",
+   homepage = "https://github.com/Tieske/date",
 }
 
 dependencies = {
-   "lua ~> 5.1"
+   "lua ~> 5.2"
 }
 
 source = {
-   url = "http://luaforge.net/frs/download.php/1708/date.zip",
-   dir = ".",
+   url = "https://github.com/Tieske/uuid/archive/version_2.1.tar.gz",
+   dir = "date-version_2.1",
 }
 
 build = {
