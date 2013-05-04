@@ -51,7 +51,7 @@
 	-- removes the decimal part of a number
 	local function fix(n) n = tonumber(n) return n and ((n > 0 and floor or ceil)(n)) end
 	-- returns the modulo n % d;
-	local function mod (n,d) return n - d*floor(n/d) end
+	local function mod(n,d) return n - d*floor(n/d) end
 	-- rounds a number;
 	local function round(n, d) d=d^10 return floor((n*d)+.5)/d end
 	-- rounds a number to whole;
@@ -355,9 +355,9 @@
 					else
 						sw:back()
 						-- am pm bce ad ce bc
-						if sw ("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*[Ee]%s*(%2)%s*") or sw ("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*") then
+						if sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*[Ee]%s*(%2)%s*") or sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*") then
 							e = e and error_dup() or -1
-						elseif sw ("^([aA])%s*(%.?)%s*[Dd]%s*(%2)%s*") or sw ("^([cC])%s*(%.?)%s*[Ee]%s*(%2)%s*") then
+						elseif sw("^([aA])%s*(%.?)%s*[Dd]%s*(%2)%s*") or sw("^([cC])%s*(%.?)%s*[Ee]%s*(%2)%s*") then
 							e = e and error_dup() or 1
 						elseif sw("^([PApa])%s*(%.?)%s*[Mm]?%s*(%2)%s*") then
 							x = lwr(sw[1]) -- there should be hour and it must be correct
