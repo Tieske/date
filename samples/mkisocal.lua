@@ -6,7 +6,7 @@ arg:
 	file           - the name of the file to write the generated text calendar
 --]]---------------------
 
-require"date"
+local date = require"date"
 
 local htm_foot = [[</body></html>]]
 local htm_head = [[<html><head><style>body{color:#000000;background-color:#FFFFFF;font-family:sans-serif;}th{background:#000000;color:#CCCCCC;vertical-align:middle;}td{vertical-align:top;text-align:center;font-weight:bold;}.s{color:#999999;font-size:60%;}</style></head><body>]]

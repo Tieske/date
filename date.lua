@@ -30,7 +30,7 @@
 	local string   = string
 	local math     = math
 	local os       = os
-	local unpack   = unpack
+	local unpack   = unpack or table.unpack
 	local setmetatable = setmetatable
 	local getmetatable = getmetatable
 --[[ EXTRA FUNCTIONS ]]--
@@ -198,8 +198,7 @@
 --[[ THE DATE MOUDLE ]]--
 	local fmtstr  = "%x %X";
 --#if not DATE_OBJECT_AFX then
-	date = {}
-	local date = date
+	local date = {}
 	setmetatable(date, date)
 -- Version:  VMMMRRRR; V-Major, M-Minor, R-Revision;  e.g. 5.45.321 == 50450321
 	date.version = 20000000 -- 2.0.0

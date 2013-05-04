@@ -6,7 +6,7 @@ arg:
 	file           - the name of the file to write the generated text calendar
 --]]---------------------
 
-require"date"
+local date = require"date"
 
 function makemonth(y,m)
 	local t = {}
