@@ -1,4 +1,12 @@
-date
-====
+LuaDate v2
 
-date/time library for Lua
+Lua Date and Time module for Lua 5.x.
+
+Features:
+	* Date and Time string parsing.
+	* Time addition and subtraction.
+	* Time span calculation.
+	* Support ISO 8601 Dates.
+	* Local time support.
+	* Lua module (not binary).
+	* Formats Date and Time like strftime.
