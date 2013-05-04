@@ -4,6 +4,7 @@
 	All Rights Deserved.
 	use this code at your own risk!.
 	keep out of reach of children.
+  Copyright (C) 2013 update to Lua 5.2 by Thijs Schreijer
 --]]------------------------------------------------------
 --[[ CONSTANTS ]]--
 	local HOURPERDAY  = 24
