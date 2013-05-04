@@ -136,9 +136,9 @@
 		local y = (n400*400) + (n100*100) + (n004*4) + n001	- ((n001 == 4 or n100 == 4) and 1 or 0)
 		local d = g - dayfromyear(y)
 		local mi = floor((100*d + 52)/3060)
-		return (floor((mi + 2)/12) + y), mod(mi + 2,12), (d - floor((mi*306 + 5)/10) + 1)
+		return (floor((mi + 2)/12) + y), mod(mi + 2,12), (d - floor((mi*306 + 5)/10) + 1)		
 	end
-	]]
+	]]		
 	-- day fraction from time
 	local function makedayfrc(h,r,s,t)
 		return ((h*60 + r)*60 + s)*TICKSPERSEC + t
@@ -403,7 +403,6 @@
 	end
 --#end -- not DATE_OBJECT_AFX
  	local function date_from(...)
-        local arg = {...}
  		local y, m, d = fix(arg[1]), getmontharg(arg[2]), fix(arg[3])
 		local h, r, s, t = tonumber(arg[4] or 0), tonumber(arg[5] or 0), tonumber(arg[6] or 0), tonumber(arg[7] or 0)
 		if y and m and d and h and r and s and t then
@@ -701,9 +700,8 @@
  	end
 
 	function date:__call(...)
-        local arg = {...}
-		local n = #arg
-		if n  > 1 then return (date_from(...))
+		local n = arg.n
+		if n  > 1 then return (date_from(unpack(arg)))
 		elseif n == 0 then return (date_getdobj(false))
 		else local o, r = date_getdobj(arg[1]);	return r and o:copy() or o end
 	end
