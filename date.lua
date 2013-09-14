@@ -196,7 +196,7 @@
   local function makedaynum_isoywd(y,w,d)
     return isow1(y) + 7*w + d - 8 -- simplified: isow1(y) + ((w-1)*7) + (d-1)
   end
---[[ THE DATE MOUDLE ]]--
+--[[ THE DATE MODULE ]]--
   local fmtstr  = "%x %X";
 --#if not DATE_OBJECT_AFX then
   local date = {}
@@ -402,8 +402,8 @@
     return (o and o:normalize() or error"invalid date time value"), r -- if r is true then o is a reference to a date obj
   end
 --#end -- not DATE_OBJECT_AFX
-   local function date_from(...)
-     local y, m, d = fix(arg[1]), getmontharg(arg[2]), fix(arg[3])
+  local function date_from(...)
+    local y, m, d = fix(arg[1]), getmontharg(arg[2]), fix(arg[3])
     local h, r, s, t = tonumber(arg[4] or 0), tonumber(arg[5] or 0), tonumber(arg[6] or 0), tonumber(arg[7] or 0)
     if y and m and d and h and r and s and t then
       return date_new(makedaynum(y, m, d), makedayfrc(h, r, s, t)):normalize()
@@ -450,13 +450,13 @@
   end
 
   function dobj:getisoweekday() return mod(weekday(self.daynum)-1,7)+1 end   -- sunday = 7, monday = 1 ...
-   function dobj:getisoweeknumber() return (isowy(self.daynum)) end
-   function dobj:getisoyear() return isoy(self.daynum)  end
-   function dobj:getisodate()
-     local w, y = isowy(self.daynum)
+  function dobj:getisoweeknumber() return (isowy(self.daynum)) end
+  function dobj:getisoyear() return isoy(self.daynum)  end
+  function dobj:getisodate()
+    local w, y = isowy(self.daynum)
     return y, w, self:getisoweekday()
   end
-   function dobj:setisoyear(y, w, d)
+  function dobj:setisoyear(y, w, d)
     local cy, cw, cd = self:getisodate()
     if y then cy = fix(tonumber(y))end
     if w then cw = fix(tonumber(w))end
@@ -470,7 +470,7 @@
   end
 
   function dobj:setisoweekday(d)    return self:setisoyear(nil, nil, d) end
-   function dobj:setisoweeknumber(w,d)  return self:setisoyear(nil, w, d)  end
+  function dobj:setisoweeknumber(w,d)  return self:setisoyear(nil, w, d)  end
 
   function dobj:setyear(y, m, d)
     local cy, cm, cd = breakdaynum(self.daynum)
@@ -537,11 +537,11 @@
       return date_error_arg()
     end
   end
-   function dobj:adddays(n)  return dobj_adddayfrc(self,n,TICKSPERDAY,1) end
+  function dobj:adddays(n)  return dobj_adddayfrc(self,n,TICKSPERDAY,1) end
   function dobj:addhours(n)  return dobj_adddayfrc(self,n,TICKSPERHOUR,HOURPERDAY) end
   function dobj:addminutes(n)  return dobj_adddayfrc(self,n,TICKSPERMIN,MINPERDAY)  end
   function dobj:addseconds(n)  return dobj_adddayfrc(self,n,TICKSPERSEC,SECPERDAY)  end
-   function dobj:addticks(n)  return dobj_adddayfrc(self,n,1,TICKSPERDAY) end
+  function dobj:addticks(n)  return dobj_adddayfrc(self,n,1,TICKSPERDAY) end
   local tvspec = {
     -- Abbreviated weekday name (Sun)
     ['%a']=function(self) return sl_weekdays[weekday(self.daynum) + 7] end,
@@ -655,9 +655,9 @@
 
   function dobj:copy() return date_new(self.daynum, self.dayfrc) end
 
- --[[ THE LOCAL DATE OBJECT METHODS ]]--
-   function dobj:tolocal()
-     local dn,df = self.daynum, self.dayfrc
+--[[ THE LOCAL DATE OBJECT METHODS ]]--
+  function dobj:tolocal()
+    local dn,df = self.daynum, self.dayfrc
     local bias  = getbiasutc2(self)
     if bias then
       -- utc = local + bias; local = utc - bias
@@ -670,7 +670,7 @@
   end
 
   function dobj:toutc()
-     local dn,df = self.daynum, self.dayfrc
+    local dn,df = self.daynum, self.dayfrc
     local bias  = getbiasloc2(dn, df)
     if bias then
       -- utc = local + bias;
@@ -690,14 +690,14 @@
   end
 
 --#if not DATE_OBJECT_AFX then
-   function date.time(h, r, s, t)
-     h, r, s, t = tonumber(h or 0), tonumber(r or 0), tonumber(s or 0), tonumber(t or 0)
-     if h and r and s and t then
+  function date.time(h, r, s, t)
+    h, r, s, t = tonumber(h or 0), tonumber(r or 0), tonumber(s or 0), tonumber(t or 0)
+    if h and r and s and t then
        return date_new(DAYNUM_DEF, makedayfrc(h, r, s, t))
     else
       return date_error_arg()
     end
-   end
+  end
 
   function date:__call(...)
     local n = arg.n
@@ -724,7 +724,7 @@
 -- Internal functions
   function date.fmt(str) if str then fmtstr = str end; return fmtstr end
   function date.daynummin(n)  DAYNUM_MIN = (n and n < DAYNUM_MAX) and n or DAYNUM_MIN  return n and DAYNUM_MIN or date_new(DAYNUM_MIN, 0):normalize()end
-   function date.daynummax(n)  DAYNUM_MAX = (n and n > DAYNUM_MIN) and n or DAYNUM_MAX return n and DAYNUM_MAX or date_new(DAYNUM_MAX, 0):normalize()end
+  function date.daynummax(n)  DAYNUM_MAX = (n and n > DAYNUM_MIN) and n or DAYNUM_MAX return n and DAYNUM_MAX or date_new(DAYNUM_MAX, 0):normalize()end
   function date.ticks(t) if t then setticks(t) end return TICKSPERSEC  end
 --#end -- not DATE_OBJECT_AFX
 
