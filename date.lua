@@ -1,11 +1,10 @@
---[[LuaDate version:2.1.0]]-------------------------------
---[[------------------------------------------------------
-  Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
-  All Rights Deserved.
-  use this code at your own risk!.
-  keep out of reach of children.
-  Copyright (C) 2013 update to Lua 5.2 by Thijs Schreijer
---]]------------------------------------------------------
+---------------------------------------------------------------------------------------
+-- Module for date and time calculations
+--
+-- @copyright Version 2.1.0, Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com), All Rights Deserved. Use this code at your own risk!. Keep out of reach of children. Copyright (C) 2013 update to Lua 5.2 by Thijs Schreijer
+-- @name date
+-- @class module
+
 --[[ CONSTANTS ]]--
   local HOURPERDAY  = 24
   local MINPERHOUR  = 60
@@ -420,7 +419,9 @@
     self.daynum, self.dayfrc = dn + floor(df/TICKSPERDAY), mod(df, TICKSPERDAY)
     return (dn >= DAYNUM_MIN and dn <= DAYNUM_MAX) and self or error("date beyond imposed limits:"..self)
   end
-
+  --- Gets the date from a date object.
+  -- @return 3 return values; year, month, day
+  -- @example local y, m, d = MyDate:getdate()
   function dobj:getdate()  local y, m, d = breakdaynum(self.daynum) return y, m+1, d end
   function dobj:gettime()  return breakdayfrc(self.dayfrc) end
 
