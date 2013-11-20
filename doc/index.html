@@ -1,0 +1,525 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>LuaDate v2</title><link rel="stylesheet" href="main.css" type="text/css"><meta name="generator" content="DocBook XSL Stylesheets V1.70.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="id90891"></a>LuaDate v2.1</h2></div><div><h3 class="subtitle"><i>Lua Date and Time module for Lua 5.x.</i></h3></div><div><div class="author"><h3 class="author"><span class="firstname">Jas</span> <span class="surname">Latrix</span></h3></div></div><div><p class="copyright">Copyright © 2005, 2006 Jas Latrix <code class="email">&lt;<a href="mailto:jastejada@yahoo.com">jastejada@yahoo.com</a>&gt;</code></p><p class="copyright">Copyright © 2013, Lua 5.2 updates by Thijs Schreijer</p></div><div><div class="legalnotice"><a name="id349744"></a>All Rights Deserved. Use at your own risk!. Shake well before using.</div></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="#intro">1. Introduction</a></span></dt><dt><span class="section"><a href="#Limits">2. Limits</a></span></dt><dt><span class="section"><a href="#LocalTimeSupport">3. Local time support</a></span></dt><dt><span class="section"><a href="#ParsableDateValue">4. Parsable date value</a></span></dt><dt><span class="section"><a href="#ParsableMonthValue">5. Parsable month value</a></span></dt><dt><span class="section"><a href="#date">6. date</a></span></dt><dd><dl><dt><span class="section"><a href="#date-id96473">6.1. Function(s) of date</a></span></dt><dt><span class="section"><a href="#date-id95781">6.2. Method(s) of date</a></span></dt></dl></dd><dt><span class="section"><a href="#dateObject">7. dateObject</a></span></dt><dd><dl><dt><span class="section"><a href="#DaysAndTick">7.1. How Date and Time are stored in <code class="classname">dateObject</code></a></span></dt><dt><span class="section"><a href="#SupportedMetaMethods">7.2. Supported MetaMethods</a></span></dt><dt><span class="section"><a href="#dateObject-id94476">7.3. Method(s) of dateObject</a></span></dt></dl></dd><dt><span class="section"><a href="#history">8. History</a></span></dt><dt><span class="section"><a href="#ackno">9. Acknowledgement</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="intro"></a>1. Introduction</h2></div></div></div><em class="firstterm">LuaDate</em> is a Lua module for date and time calculation and retrieval using the Gregorian Date system.
+		<p>
+		To Load the module call <code class="code">local date = require"date"</code> in your script.
+		Make sure Lua can find the source file <code class="filename">date.lua</code>.
+		No global table <code class="classname">date</code> will be created.
+		Use the metamethod <a href="#date.__call">__call</a> to construct a <a href="#dateObject">dateObject</a> see example below:
+</p><pre class="programlisting">
+local date = require "date"
+-- prints all FRIDAY the 13TH dates between year 2000 and 2010
+for i = 2000, 2010 do
+	-- year jan 1
+	x = date(i, 1, 1)
+	-- from january to december
+	for j = 1, 12 do
+		-- set date to 13, check if friday
+		if x:setmonth(j, 13):getweekday() == 6 then
+			print(x:fmt("%A, %B %d %Y"))
+		end
+	end
+end
+
+--- OUTPUT ---
+--&gt; Friday, October 13 2000
+--&gt; Friday, April 13 2001
+--&gt; Friday, July 13 2001
+--&gt; Friday, September 13 2002
+--&gt; Friday, December 13 2002
+--&gt; Friday, June 13 2003
+--&gt; Friday, February 13 2004
+--&gt; Friday, August 13 2004
+--&gt; Friday, May 13 2005
+--&gt; Friday, January 13 2006
+--&gt; Friday, October 13 2006
+--&gt; Friday, April 13 2007
+--&gt; Friday, July 13 2007
+--&gt; Friday, June 13 2008
+--&gt; Friday, February 13 2009
+--&gt; Friday, March 13 2009
+--&gt; Friday, November 13 2009
+--&gt; Friday, August 13 2010
+</pre><p>
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Limits"></a>2. Limits</h2></div></div></div><div class="itemizedlist"><ul type="disc"><li>This module does not recognize leap seconds.</li><li>It assumes that a day has exactly <code class="constant">24*60*60</code> seconds.</li><li>The Lua number must be a double C data type</li><li>This module supports dates that are greater than
+			<code class="constant">Mon Jan 01 1000000 BCE 00:00:00</code> and less than
+			<code class="constant">Mon Jan 01 1000001 00:00:00</code>.</li><li>see <a href="#LocalTimeSupport">Local time support</a> for local time limts</li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="LocalTimeSupport"></a>3. Local time support</h2></div></div></div>
+		This module also supports local time. Local Time is;
+		<div class="blockquote"><blockquote class="blockquote">Local = UTC + bias</blockquote></div>
+		The <span class="emphasis"><em>bias</em></span> is time zone offset plus the daylight savings if in effect.
+		The <span class="emphasis"><em>bias</em></span> is retrieve using the Lua function <code class="code">os.date</code> and <code class="code">os.time</code>.
+		It assumes that the Lua function <code class="code">os.time</code><span class="bold"><strong> returns the number of seconds since the start time (called "epoch")</strong></span>.
+		If the time value is outside the allowable range of times, usually
+		<code class="constant">Jan 01 1970 00:00:00</code> to
+		<code class="constant">Jan 19 2038 03:14:07</code> the bias will be retrieve
+		using the equivalent year inside the allowable range. Two years are considered to
+		equivalent if they have the same leap year ness and starting weekday.
+		<p>The function that needs local time support are
+		<a href="#date.__call" title="6.2.1. __call">date(true)</a> (get the current UTC time),
+		<a href="#date.__call" title="6.2.1. __call">date(false)</a> (get the current local time),
+		<a href="#date.__call" title="6.2.1. __call">date(num_time)</a>,
+		<a href="#dateObject.getbias" title="7.3.10. getbias">dateObj:getbias()</a>,
+		<a href="#dateObject.fmt" title="7.3.9. fmt">dateObject:fmt(str)</a> (when str has a '%Z' or '%z'),
+		</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="ParsableDateValue"></a>4. Parsable date value</h2></div></div></div>
+			Parsable date value is a lua value that can be converted to a <a href="#dateObject">dateObject</a>.
+			This value must be <code class="code">num_time</code> or <code class="code">tbl_date</code> or <code class="code">str_date</code> or <code class="code">bool_now</code> argument
+			describe in the <a href="#date">date</a> library <a href="#date.__call">__call</a> method.
+		</div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="ParsableMonthValue"></a>5. Parsable month value</h2></div></div></div>
+			If a function needs a month value it must be a string or a number.
+			If the value is a <code class="constant">string</code>, it must be the name of the month full or abbreviated.
+			If the value is a <code class="constant">number</code>, that number must be 1-12 (January-December). see table below
+		<div class="table"><a name="monthtable"></a><p class="title"><b>Table 1. </b></p><div class="table-contents"><table border="1"><colgroup><col><col><col></colgroup><thead><tr><th>Index</th><th>Abbreviation</th><th>Full Name</th></tr></thead><tbody><tr><td>1</td><td>Jan</td><td>January</td></tr><tr><td>2</td><td>Feb</td><td>February</td></tr><tr><td>3</td><td>Mar</td><td>March</td></tr><tr><td>4</td><td>Apr</td><td>April</td></tr><tr><td>5</td><td>May</td><td>May</td></tr><tr><td>6</td><td>Jun</td><td>June</td></tr><tr><td>7</td><td>Jul</td><td>July</td></tr><tr><td>8</td><td>Aug</td><td>August</td></tr><tr><td>9</td><td>Sep</td><td>September</td></tr><tr><td>10</td><td>Oct</td><td>October</td></tr><tr><td>11</td><td>Nov</td><td>November</td></tr><tr><td>12</td><td>Dec</td><td>December</td></tr></tbody></table></div></div><br class="table-break"><p>
+			If the value does not represent month, that is equivalent to passing a nil value.
+			</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="date"></a>6. date</h2></div></div></div>The date module.<div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="date-id96473"></a>6.1. Function(s) of date</h3></div></div></div><div class="variablelist"><dl><dt><span class="term"></span></dt><dd><a href="#date.diff">diff</a> | <a href="#date.epoch">epoch</a> | <a href="#date.isleapyear">isleapyear</a><sub> 3</sub></dd></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="date.diff"></a>6.1.1. diff</h4></div></div></div><a class="indexterm" name="id352312"></a>Subtract the date and time value of two <a href="#dateObject">dateObject</a> and returns the resulting <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">date.<span class="bold"><strong>diff</strong></span>(<em class="parameter"><code>var_date1</code></em>, <em class="parameter"><code>var_date2</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>var_date1</em></span></span></dt><dd>Required. a <a href="#dateObject">dateObject</a> or <a href="#ParsableDateValue">parsable date value</a></dd><dt><span class="term"><span class="emphasis"><em>var_date2</em></span></span></dt><dd>Required. a <a href="#dateObject">dateObject</a> or <a href="#ParsableDateValue">parsable date value</a></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>The resulting <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+-- get the days between two dates
+d = date.diff("Jan 7 1563", date(1563, 1, 2))
+assert(d:spandays()==5)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="date.epoch"></a>6.1.2. epoch</h4></div></div></div><a class="indexterm" name="id352466"></a>Returns <a href="#dateObject">dateObject</a> whose date and time value is the Operating System epoch.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">date.<span class="bold"><strong>epoch</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>The resulting <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+assert(date.epoch()==date("jan 1 1970"))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="date.isleapyear"></a>6.1.3. isleapyear</h4></div></div></div><a class="indexterm" name="id352556"></a>Check if a number or <a href="#dateObject">dateObject</a> is a leapyear.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">date.<span class="bold"><strong>isleapyear</strong></span>(<em class="parameter"><code>var_year</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>var_year</em></span></span></dt><dd>a number or <a href="#dateObject">dateObject</a> or <a href="#ParsableDateValue">parsable date value</a></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><code class="classname">true</code> if <code class="varname">var_year</code> leap year.
+					<code class="classname">false</code> if <code class="varname">var_year</code> not leap year.
+				</dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>
+				A leap year in the Gregorian calendar is defined as a year that is evenly
+				divisible by four, except if it is divisible by 100; however, years that are
+				divisible by 400 are leap years.
+			</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1776, 1, 1)
+assert(date.isleapyear(d))
+assert(date.isleapyear(d:getyear()))
+assert(date.isleapyear(1776))
+</pre></dd></dl></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="date-id95781"></a>6.2. Method(s) of date</h3></div></div></div><div class="variablelist"><dl><dt><span class="term"></span></dt><dd><a href="#date.__call">__call</a><sub> 1</sub></dd></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="date.__call"></a>6.2.1. __call</h4></div></div></div><a class="indexterm" name="id352700"></a>
+				Construct a <a href="#dateObject">dateObject</a>. It has 3 method of constructing a date object.
+				<div class="itemizedlist"><ul type="disc"><li>3 or more arguments - <em class="parameter"><code>int_year, var_month, int_day, num_hour, num_min, num_sec, int_ticks</code></em></li><li>1 argument - <em class="parameter"><code>num_time</code></em> or <em class="parameter"><code>tbl_date</code></em> or <em class="parameter"><code>str_date</code></em> or <em class="parameter"><code>bool_now</code></em></li><li>no argument - same as <code class="varname">date(<code class="classname">false</code>)</code></li></ul></div>
+				This is a metamethod of <a href="#date">date</a>.
+				Remember <code class="function">date:__call(...)</code> is the same as <code class="function">date(...)</code>.
+				<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">date(<em class="parameter"><code>num_time</code></em>)</pre><pre class="programlisting">date(<em class="parameter"><code>tbl_date</code></em>)</pre><pre class="programlisting">date(<em class="parameter"><code>str_date</code></em>)</pre><pre class="programlisting">date(<em class="parameter"><code>bool_now</code></em>)</pre><pre class="programlisting">date(<em class="parameter"><code>int_year</code></em>, <em class="parameter"><code>var_month</code></em>, <em class="parameter"><code>int_day</code></em>, [<em class="parameter"><code>num_hour</code></em>], [<em class="parameter"><code>num_min</code></em>], [<em class="parameter"><code>num_sec</code></em>], [<em class="parameter"><code>int_ticks</code></em>])</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl></dl></div><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_time</em></span></span></dt><dd>Required<code class="classname"> number</code> value. Represents the number of seconds in Universal Coordinated Time between the specified value and the System epoch.</dd></dl></div><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>tbl_date</em></span></span></dt><dd>Required<code class="classname"> table</code> value. The constructor will look for the value of this key:
+		            <div class="itemizedlist"><ul type="disc"><li><em class="parameter"><code>year</code></em> - an integer, the full year, for example, 1969. Required if month and day is given</li><li><em class="parameter"><code>month</code></em> - a <a href="#ParsableMonthValue">parsable month value</a>. Required if year and day is given</li><li><em class="parameter"><code>day</code></em> - an integer, the day of month from 1 to 31. Required if year and month is given</li><li><em class="parameter"><code>hour</code></em> - a number, hours value, from 0 to 23, indicating the number of hours since midnight. (default = 0)</li><li><em class="parameter"><code>min</code></em> - a number, minutes value, from 0 to 59. (default = 0)</li><li><em class="parameter"><code>sec</code></em> - a number, seconds value, from 0 to 59. (default = 0)</li></ul></div>
+					Time <em class="parameter"><code>(hour or min or sec or msec)</code></em> must be supplied if
+					date <em class="parameter"><code>(year and month and day)</code></em> is not given, vice versa.
+				</dd></dl></div><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>str_date</em></span></span></dt><dd>Required<code class="classname"> string</code> value. It must have number/words representing date and/or time.
+					Use commas and spaces as delimiters.
+					Strings enclosed by parenthesis is treated as a comment and is ignored, these parentheses may be nested.
+					The stated day of the week is ignored whether its correct or not.
+					A string containing an invalid date is an error.
+					For example, a string containing two years or two months is an error.
+					Time must be supplied if date is not given, vice versa.
+					<p><b>Time Format. </b>
+						Hours, minutes, and seconds are separated by colons, although all need not be specified. "10:", "10:11", and "10:11:12" are all valid.
+						If the 24-hour clock is used, it is an error to specify "PM" for times later than 12 noon. For example, "23:15 PM" is an error.
+					</p><p><b>Time Zone Format. </b>
+						First character is a sign "+" (east of UTC) or "-" (west of UTC).
+						Hours and minutes offset are separated by colons:
+</p><pre class="programlisting">
+assert( date("Jul 27 2006 03:56:28 +2:00") == date(2006,07,27,1,56,28))
+</pre><p>
+						Another format is <code class="constant">[sign][number]</code>
+						If <code class="constant">[number]</code> is less than 24, it is the offset in hours e.g. "-10" = -10 hours.
+						Otherwise it is the offset in houndred hours e.g. "+75" = "+115" = +1.25 hours.
+</p><pre class="programlisting">
+assert(date("Jul 27 2006 -75 ") == date(2006,07,27,1,15,0))
+assert(date("Jul 27 2006 -115") == date(2006,07,27,1,15,0))
+assert(date("Jul 27 2006 +10 ") == date(2006,07,26,14,0,0))
+assert(date("Jul 27 2006 +2  ") == date(2006,07,26,22,0,0))
+</pre><p>
+Standard timezone GMT, UTC, EST, EDT, CST, CDT, MST, MDT, PST, PDT are supported.
+</p><pre class="programlisting">
+assert(date("Jul 27 2006 GMT") == date(2006,07,27,0,0,0))
+assert(date("Jul 27 2006 UTC") == date(2006,07,27,0,0,0))
+assert(date("Jul 27 2006 EST") == date(2006,07,27,5,0,0))
+assert(date("Jul 27 2006 EDT") == date(2006,07,27,4,0,0))
+assert(date("Jul 27 2006 CST") == date(2006,07,27,6,0,0))
+assert(date("Jul 27 2006 CDT") == date(2006,07,27,5,0,0))
+assert(date("Jul 27 2006 MST") == date(2006,07,27,7,0,0))
+assert(date("Jul 27 2006 MDT") == date(2006,07,27,6,0,0))
+assert(date("Jul 27 2006 PST") == date(2006,07,27,8,0,0))
+assert(date("Jul 27 2006 PDT") == date(2006,07,27,7,0,0))
+</pre><p><b>Date Format. </b>
+					Short dates can use either a "/" or "-" date separator, but must follow the month/day/year format
+</p><pre class="programlisting">
+assert(date("02-03-04")==date(1904,02,03))
+assert(date("12/25/98")==date(1998,12,25))
+</pre><p>
+					Long dates of the form "July 10 1995" can be given with the year, month, and day in any order, and the year in 2-digit or 4-digit form.
+					If you use the 2-digit form, the year must be greater than or equal to 70.
+</p><pre class="programlisting">
+assert(date("Feb-03-04")==date(1904,02,03))
+assert(date("December 25 1998")==date(1998,12,25))
+</pre><p>
+					Follow the year with BC or BCE to indicate that the year is before common era.
+</p><pre class="programlisting">
+assert(date("Feb 3 0003 BC")==date(-2,02,03))
+assert(date("December 25 0001 BC")==date(0,12,25))
+</pre><p><b>Supported ISO 8601 Formats. </b></p><div class="variablelist"><dl><dt><span class="term">
+									<code class="constant">YYYY-MM-DD</code>
+								</span></dt><dd>
+ where YYYY is the year, MM is the month of the year, and DD is the day of the month.
+<pre class="programlisting">
+assert(date("2000-12-31")==date(2000,12,31))
+assert(date(" 20001231 ")==date(2000,12,31)) -- Compact version
+</pre></dd><dt><span class="term">
+									<code class="constant">YYYY-DDD</code>
+								</span></dt><dd>
+ where YYYY is the year, DDD is the day of the year.
+<pre class="programlisting">
+assert(date("1995-035")==date(1995,02,04))
+assert(date("1995035 ")==date(1995,02,04)) -- Compact version
+</pre></dd><dt><span class="term">
+									<code class="constant">YYYY-WDD-D</code>
+								</span></dt><dd>
+ where YYYY is the year, DD is the week of the year, D is the day of the week.
+<pre class="programlisting">
+assert(date("1997-W01-1")==date(1996,12,30))
+assert(date("  1997W017")==date(1997,01,05)) -- Compact version
+</pre></dd><dt><span class="term">
+									<code class="constant"><span class="emphasis"><em>DATE</em></span> HH:MM:SS.SSS</code>
+								</span></dt><dd>
+Where <span class="emphasis"><em>DATE</em></span> is the date format discuss above, HH is the hour, MM is the miute, SS.SSS is the seconds (fraction is optional).
+<pre class="programlisting">
+assert(date("1995-02-04 24:00:51.536")==date(1995,2,5,0,0,51.536))
+assert(date("1976-W01-1 12:12:12.123")==date(1975,12,29,12,12,12.123))
+assert(date("1995-035 23:59:59.99999")==date(1995,02,04,23,59,59.99999))
+-- Compact version separated by latin capital letter T
+assert(date("  19950205T000051.536  ")==date(1995,2,5,0,0,51.536))
+assert(date("  1976W011T121212.123  ")==date(1975,12,29,12,12,12.123))
+assert(date(" 1995035T235959.99999  ")==date(1995,02,04,23,59,59.99999))
+</pre></dd><dt><span class="term"><code class="constant"><span class="emphasis"><em>DATE</em></span> <span class="emphasis"><em>TIME</em></span> +HH:MM</code>,
+<code class="constant"><span class="emphasis"><em>DATE</em></span> <span class="emphasis"><em>TIME</em></span> -HHMM</code>,
+<code class="constant"><span class="emphasis"><em>DATE</em></span> <span class="emphasis"><em>TIME</em></span> Z</code>,</span></dt><dd>
+Where <span class="emphasis"><em>DATE</em></span> and <span class="emphasis"><em>TIME</em></span> is the dateand time format discuss above.
+First character is a sign "+" (east of UTC) or "-" (west of UTC).
+HH and MM is Hours and minutes offset. The Z stands for the zero offset.
+<pre class="programlisting">
+assert(date("1976-W01-1 12:00Z     ")==date(1975,12,29,12))
+assert(date("1976-W01-1 13:00+01:00")==date(1975,12,29,12))
+assert(date("1976-W01-1 0700-0500  ")==date(1975,12,29,12))
+</pre></dd></dl></div></dd></dl></div><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>bool_now</em></span></span></dt><dd>Required<code class="classname"> boolean</code> value. 
+					if <code class="varname">bool_now</code> is <code class="classname">false</code> it returns the current local date and time.
+					if <code class="varname">bool_now</code> is <code class="classname">true</code> it returns the current UTC date and time.
+					</dd></dl></div><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_year</em></span></span></dt><dd>Required<code class="classname"> interger</code> value. The year value.</dd><dt><span class="term"><span class="emphasis"><em>var_month</em></span></span></dt><dd>Required.  A <a href="#ParsableMonthValue">parsable month value</a>.</dd><dt><span class="term"><span class="emphasis"><em>int_day</em></span></span></dt><dd>Required<code class="classname"> interger</code> value. The day of month.</dd><dt><span class="term"><span class="emphasis"><em>num_hour</em></span></span></dt><dd>Optional<code class="classname"> number</code> value. Equal to the hours value. The default value is <code class="literal">0</code></dd><dt><span class="term"><span class="emphasis"><em>num_min</em></span></span></dt><dd>Optional<code class="classname"> number</code> value. Equal to the minutes value. The default value is <code class="literal">0</code></dd><dt><span class="term"><span class="emphasis"><em>num_sec</em></span></span></dt><dd>Optional<code class="classname"> number</code> value. Equal to the seconds value. The default value is <code class="literal">0</code></dd><dt><span class="term"><span class="emphasis"><em>int_ticks</em></span></span></dt><dd>Optional<code class="classname"> interger</code> value. Equal to the ticks value. The default value is <code class="literal">0</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>the new <a href="#dateObject">dateObject</a> </td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2006, 8, 13)   assert(a == date("Sun Aug 13 2006"))
+b = date("Jun 13 1999") assert(b == date(1999, 6, 13))
+c = date(1234483200)    assert(c == date("Feb 13 2009"))
+d = date({year=2009, month=11, day=13, min=6})
+	assert(d == date("Nov 13 2009 00:06:00"))
+e = date() assert(e)
+</pre></dd></dl></div></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dateObject"></a>7. dateObject</h2></div></div></div><em class="firstterm">dateObject</em> is a table containing date and time value.
+				It has a metatable for manipulation and retrieval of dates and times.
+				Use the <a href="#date.__call">__call</a> method of <a href="#date">date</a> to construct a dateObject.
+
+		<div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="DaysAndTick"></a>7.1. How Date and Time are stored in <code class="classname">dateObject</code></h3></div></div></div>
+			Time is stored in <code class="classname">dateObject</code> as Ticks or Day Fraction.
+			Date is stored in <code class="classname">dateObject</code> as Day Number.
+			Ticks is time unit per seconds.
+			For example, if the tick unit is 1000000.
+			0.25 seconds is equivalent to 250000 ticks (0.25*1000000).
+			Day number, is the number days since the epoch, which is January 1, 0001 AD.
+			Example.
+<pre class="programlisting">
+dobj = date("15:49:59.3669")
+</pre>
+If the tick unit is 1000000, <code class="varname">dobj</code> store this time as 56999366900 ticks and 0 days.
+<pre class="programlisting">
+((((15*60)+49)*60)+59.3669)*1000000 == 56999366900
+</pre>
+Example Date and Time:
+<pre class="programlisting">
+dobj = date("Jan-5-0001 10:30:15")
+</pre>
+If the tick unit is 1000000, <code class="varname">dobj</code> store this date and time as 37815000000 ticks and 4 days.
+4 days becuase:
+<table id="id354830"><tr>
+						<th>Day#</th>
+						<th>Date</th>
+					</tr><tr>
+						<td>0</td>
+						<td>Jan 1 0001</td>
+					</tr><tr>
+						<td>1</td>
+						<td>Jan 2 0001</td>
+					</tr><tr>
+						<td>2</td>
+						<td>Jan 3 0001</td>
+					</tr><tr>
+						<td>3</td>
+						<td>Jan 4 0001</td>
+					</tr><tr>
+						<td>
+							<span class="bold"><strong>4</strong></span>
+						</td>
+						<td>
+							<span class="bold"><strong>Jan 5 0001</strong></span>
+						</td>
+					</tr><tr>
+						<td>5</td>
+						<td>Jan 6 0001</td>
+					</tr><tr>
+						<td>...</td>
+						<td>...</td>
+					</tr></table><p>The default tick unit is 1000000 (micro-second-ticks)</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="SupportedMetaMethods"></a>7.2. Supported MetaMethods</h3></div></div></div><div class="variablelist"><dl><dt><span class="term">The <code class="varname">a &lt; b</code> operation.</span></dt><dd>
+						Returns <code class="constant">true</code> if date value of a is later than date value of b.
+						<code class="varname">a &gt; b</code> is equivalent to <code class="varname">b &lt; a</code>.
+					</dd><dt><span class="term">The <code class="varname">a &lt;= b</code> operation.</span></dt><dd>
+						Returns <code class="constant">true</code> if date value of a is later than or equal to the date value of b.
+						<code class="varname">a &gt;= b</code> is equivalent to <code class="varname">b &lt;= a</code>.
+					</dd><dt><span class="term">The <code class="varname">a == b</code> operation.</span></dt><dd>
+						Returns <code class="constant">true</code> if date value of a is equal equal to the date value of b.
+						<code class="varname">a ~= b</code> is equivalent to <code class="varname">not (a == b)</code>.
+					</dd><dt><span class="term">The <code class="varname">a .. b</code> operation.</span></dt><dd>
+						Equivalent to <code class="varname">tostring(a) .. tostring(b)</code>.
+					</dd><dt><span class="term">The <code class="varname">a - b</code> operation.</span></dt><dd>
+						Subtract the date and time value of <code class="varname">a</code> to date and time value of <code class="varname">b</code>.
+					</dd><dt><span class="term">The <code class="varname">a + b</code> operation.</span></dt><dd>
+						Add the date and time value of <code class="varname">a</code> to date and time value of <code class="varname">b</code>.
+					</dd></dl></div><code class="varname">a</code> and <code class="varname">b</code> must be a parsable date value or an error rises
+				<pre class="programlisting">
+a = date(1521,5,2)
+b = a:copy():addseconds(0.001)
+
+assert((a - b):spanseconds() == -0.001)
+assert((a + b) == (b + a))
+assert(a == (b - date("00:00:00.001")) )
+assert(b == (a + date("00:00:00.001")) )
+
+b:addseconds(-0.01)
+
+assert(a &gt;  b and b &lt;  a)
+assert(a &gt;= b and b &lt;= a)
+assert(a ~= b and (not(a == b)))
+
+a = b:copy()
+
+assert(not (a &gt;  b and b &lt;  a))
+assert(a &gt;= b and b &lt;= a)
+assert(a == b and (not(a ~= b)))
+
+assert((a .. 565369) == (b .. 565369))
+assert((a .. "????") == (b .. "????"))
+				</pre></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="dateObject-id94476"></a>7.3. Method(s) of dateObject</h3></div></div></div><div class="variablelist"><dl><dt><span class="term"></span></dt><dd><a href="#dateObject.adddays">adddays</a> | <a href="#dateObject.addhours">addhours</a> | <a href="#dateObject.addminutes">addminutes</a> | <a href="#dateObject.addmonths">addmonths</a> | <a href="#dateObject.addseconds">addseconds</a> | <a href="#dateObject.addticks">addticks</a> | <a href="#dateObject.addyears">addyears</a> | <a href="#dateObject.copy">copy</a> | <a href="#dateObject.fmt">fmt</a> | <a href="#dateObject.getbias">getbias</a> | <a href="#dateObject.getclockhour">getclockhour</a> | <a href="#dateObject.getdate">getdate</a> | <a href="#dateObject.getday">getday</a> | <a href="#dateObject.getfracsec">getfracsec</a> | <a href="#dateObject.gethours">gethours</a> | <a href="#dateObject.getisoweekday">getisoweekday</a> | <a href="#dateObject.getisoweeknumber">getisoweeknumber</a> | <a href="#dateObject.getisoyear">getisoyear</a> | <a href="#dateObject.getminutes">getminutes</a> | <a href="#dateObject.getmonth">getmonth</a> | <a href="#dateObject.getseconds">getseconds</a> | <a href="#dateObject.getticks">getticks</a> | <a href="#dateObject.gettime">gettime</a> | <a href="#dateObject.getweekday">getweekday</a> | <a href="#dateObject.getweeknumber">getweeknumber</a> | <a href="#dateObject.getyear">getyear</a> | <a href="#dateObject.getyearday">getyearday</a> | <a href="#dateObject.setday">setday</a> | <a href="#dateObject.sethours">sethours</a> | <a href="#dateObject.setisoweekday">setisoweekday</a> | <a href="#dateObject.setisoweeknumber">setisoweeknumber</a> | <a href="#dateObject.setisoyear">setisoyear</a> | <a href="#dateObject.setminutes">setminutes</a> | <a href="#dateObject.setmonth">setmonth</a> | <a href="#dateObject.setseconds">setseconds</a> | <a href="#dateObject.setticks">setticks</a> | <a href="#dateObject.setyear">setyear</a> | <a href="#dateObject.spandays">spandays</a> | <a href="#dateObject.spanhours">spanhours</a> | <a href="#dateObject.spanminutes">spanminutes</a> | <a href="#dateObject.spanseconds">spanseconds</a> | <a href="#dateObject.spanticks">spanticks</a> | <a href="#dateObject.tolocal">tolocal</a> | <a href="#dateObject.toutc">toutc</a><sub> 44</sub></dd></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.adddays"></a>7.3.1. adddays</h4></div></div></div><a class="indexterm" name="id355399"></a>Add days in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>adddays</strong></span>(<em class="parameter"><code>int_days</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_days</em></span></span></dt><dd>Required<code class="classname"> integer</code> value. Days to add.</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the adjusted <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>If the value is negative, the adjusted dateObject will be earlier.</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,30)
+b = date(a):adddays(3)
+c = date.diff(b,a)
+assert(c:spandays() == 3)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.addhours"></a>7.3.2. addhours</h4></div></div></div><a class="indexterm" name="id355527"></a>Add hours in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>addhours</strong></span>(<em class="parameter"><code>num_hours</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_hours</em></span></span></dt><dd>Required<code class="classname"> number</code> value. Hours to add.</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the adjusted <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>If the value is negative, the adjusted dateObject will be earlier.</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,30)
+b = date(a):addhours(3)
+c = date.diff(b,a)
+assert(c:spanhours() == 3)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.addminutes"></a>7.3.3. addminutes</h4></div></div></div><a class="indexterm" name="id355655"></a>Add minutes in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>addminutes</strong></span>(<em class="parameter"><code>num_minutes</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_minutes</em></span></span></dt><dd>Required<code class="classname"> number</code> value. Minutes to add.</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the adjusted <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>If the value is negative, the adjusted dateObject will be earlier.</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,30)
+b = date(a):addminutes(3)
+c = date.diff(b,a)
+assert(c:spanminutes() == 3)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.addmonths"></a>7.3.4. addmonths</h4></div></div></div><a class="indexterm" name="id355783"></a>Add months in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>addmonths</strong></span>(<em class="parameter"><code>int_months</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_months</em></span></span></dt><dd>Required<code class="classname"> integer</code> value. Months to add.</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the adjusted <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>If the value is negative, the adjusted dateObject will be earlier.</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,28):addmonths(3)
+assert(a:getmonth() == 3)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.addseconds"></a>7.3.5. addseconds</h4></div></div></div><a class="indexterm" name="id355910"></a>Add seconds in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>addseconds</strong></span>(<em class="parameter"><code>num_sec</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_sec</em></span></span></dt><dd>Required<code class="classname"> number</code> value. Seconds to add.</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the adjusted <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>If the value is negative, the adjusted dateObject will be earlier.</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,30)
+b = date(a):addseconds(3)
+c = date.diff(b,a)
+assert(c:spanseconds() == 3)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.addticks"></a>7.3.6. addticks</h4></div></div></div><a class="indexterm" name="id356038"></a>Add ticks in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>addticks</strong></span>(<em class="parameter"><code>num_ticks</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_ticks</em></span></span></dt><dd>Required<code class="classname"> number</code> value. Ticks to add.</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the adjusted <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>If the value is negative, the adjusted dateObject will be earlier.
+			For discussion about ticks see <a href="#DaysAndTick" title="7.1. How Date and Time are stored in dateObject">Section 7.1, &#8220;How Date and Time are stored in <code class="classname">dateObject</code>&#8221;</a>.
+			</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,30)
+b = date(a):addticks(3)
+c = date.diff(b,a)
+assert(c:spanticks() == 3)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.addyears"></a>7.3.7. addyears</h4></div></div></div><a class="indexterm" name="id356171"></a>Add years in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>addyears</strong></span>(<em class="parameter"><code>int_years</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_years</em></span></span></dt><dd>Required<code class="classname"> integer</code> value. Years to add.</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the adjusted <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>If the value is negative, the adjusted dateObject will be earlier.</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,30):addyears(3)
+assert(a:getyear() == (2000+3))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.copy"></a>7.3.8. copy</h4></div></div></div><a class="indexterm" name="id356299"></a>Returns a new date object having the same date and time value of <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>copy</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2000,12,30)
+b = a:copy()
+assert(a==b)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.fmt"></a>7.3.9. fmt</h4></div></div></div><a class="indexterm" name="id356352"></a>Returns a formatted version of <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>fmt</strong></span>(<em class="parameter"><code>str_code</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>str_code</em></span></span></dt><dd><code class="classname"> string</code> value. 
+				The format string follows the same rules as the strftime standard C function.
+				<div class="table"><a name="fmtspec"></a><p class="title"><b>Table 3. Format Spec</b></p><div class="table-contents"><table summary="Format Spec" border="1"><colgroup><col><col></colgroup><thead><tr><th>Spec</th><th>Description</th></tr></thead><tbody><tr><td>'%a'</td><td>Abbreviated weekday name (Sun)</td></tr><tr><td>'%A'</td><td>Full weekday name (Sunday)</td></tr><tr><td>'%b'</td><td>Abbreviated month name (Dec)</td></tr><tr><td>'%B'</td><td>Full month name (December)</td></tr><tr><td>'%C'</td><td>Year/100 (19, 20, 30)</td></tr><tr><td>'%d'</td><td>The day of the month as a number (range 1 - 31)</td></tr><tr><td>'%g'</td><td>year for ISO 8601 week, from 00 (79)</td></tr><tr><td>'%G'</td><td>year for ISO 8601 week, from 0000 (1979)</td></tr><tr><td>'%h'</td><td>same as %b</td></tr><tr><td>'%H'</td><td>hour of the 24-hour day, from 00 (06)</td></tr><tr><td>'%I'</td><td>The  hour as a number using a 12-hour clock (01 - 12)</td></tr><tr><td>'%j'</td><td>The day of the year as a number (001 - 366)</td></tr><tr><td>'%m'</td><td>Month of the year, from 01 to 12</td></tr><tr><td>'%M'</td><td>Minutes after the hour 55</td></tr><tr><td>'%p'</td><td>AM/PM indicator (AM)</td></tr><tr><td>'%S'</td><td>The second as a number (59, 20 , 01)</td></tr><tr><td>'%u'</td><td>ISO 8601 day of the week, to 7 for Sunday (7, 1)</td></tr><tr><td>'%U'</td><td>Sunday week of the year, from 00 (48)</td></tr><tr><td>'%V'</td><td>ISO 8601 week of the year, from 01 (48)</td></tr><tr><td>'%w'</td><td>The day of the week as a decimal, Sunday being 0</td></tr><tr><td>'%W'</td><td>Monday week of the year, from 00 (48)</td></tr><tr><td>'%y'</td><td>The year as a number without a century (range 00 to 99)</td></tr><tr><td>'%Y'</td><td>Year with century (2000, 1914, 0325, 0001)</td></tr><tr><td>'%z'</td><td>Time zone offset, the date object is assumed local time (+1000, -0230)</td></tr><tr><td>'%Z'</td><td>Time zone name, the date object is assumed local time</td></tr><tr><td>'%\b'</td><td>Year, if year is in BCE, prints the BCE Year representation, otherwise result is similar to "%Y" (1 BCE, 40 BCE) #</td></tr><tr><td>'%\f'</td><td>Seconds including fraction (59.998, 01.123) #</td></tr><tr><td>'%%'</td><td>percent character %</td></tr><tr><td>'%r'</td><td>12-hour time, from 01:00:00 AM (06:55:15 AM); same as "%I:%M:%S %p"</td></tr><tr><td>'%R'</td><td>hour:minute, from 01:00 (06:55); same as "%I:%M"</td></tr><tr><td>'%T'</td><td>24-hour time, from 00:00:00 (06:55:15); same as "%H:%M:%S"</td></tr><tr><td>'%D'</td><td>month/day/year from 01/01/00 (12/02/79); same as "%m/%d/%y"</td></tr><tr><td>'%F'</td><td>year-month-day (1979-12-02); same as "%Y-%m-%d"</td></tr><tr><td>'%c'</td><td>The preferred date and time representation;  same as "%x %X"</td></tr><tr><td>'%x'</td><td>The preferred date representation, same as "%a %b %d %\b"</td></tr><tr><td>'%X'</td><td>The preferred time representation, same as "%H:%M:%\f"</td></tr><tr><td>'${iso}'</td><td>Iso format, same as "%Y-%m-%dT%T"</td></tr><tr><td>'${http}'</td><td>http format, same as "%a, %d %b %Y %T GMT"		</td></tr><tr><td>'${ctime}'</td><td>ctime format, same as "%a %b %d %T GMT %Y"</td></tr><tr><td>'${rfc850}'</td><td>RFC850 format, same as "%A, %d-%b-%y %T GMT"</td></tr><tr><td>'${rfc1123}'</td><td>RFC1123 format, same as "%a, %d %b %Y %T GMT"</td></tr><tr><td>'${asctime}'</td><td>asctime format, same as "%a %b %d %T %Y"</td></tr></tbody></table></div></div><br class="table-break"></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>Only English names are supported</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1582,10,5)
+assert(d:fmt('%D') == d:fmt("%m/%d/%y"))	-- month/day/year from 01/01/00 (12/02/79)
+assert(d:fmt('%F') == d:fmt("%Y-%m-%d"))	-- year-month-day (1979-12-02)
+assert(d:fmt('%h') == d:fmt("%b"))			-- same as %b (Dec)
+assert(d:fmt('%r') == d:fmt("%I:%M:%S %p"))	-- 12-hour time, from 01:00:00 AM (06:55:15 AM)
+assert(d:fmt('%T') == d:fmt("%H:%M:%S"))	-- 24-hour time, from 00:00:00 (06:55:15)
+assert(d:fmt('%a %A %b %B') == "Tue Tuesday Oct October")
+assert(d:fmt('%C %d') == "15 05", d:fmt('%C %d'))
+
+print(d:fmt[[
+${iso} -- iso
+${http} -- http
+${ctime} -- ctime
+${rfc850} -- rfc850
+${rfc1123} -- rfc1123
+${asctime} -- asctime
+]])
+</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span> (Prints the current date and time)</span></dt><dd><pre class="programlisting">
+-- Prints the current date and time, including time zone
+d = date(false);
+print(d:fmt("Today is %c GMT%z"))
+--&gt; "Today is Tue Oct 31 2000 01:58:14 GMT-0330"
+
+-- Prints the current date and time in ISO format including time zone
+d = date(false);
+print(d:fmt("Today is ${iso}%z"))
+--&gt; "Today is 2000-10-31T01:58:14-0330"
+
+-- Prints the current date and time in ISO format, indicates UTC
+d = date(true);
+print(d:fmt("Today is ${iso}Z"))
+--&gt; "Today is 2000-10-31T05:28:14Z"
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getbias"></a>7.3.10. getbias</h4></div></div></div><a class="indexterm" name="id356866"></a>	Assuming <a href="#dateObject">dateObject</a> is a local time.
+					Returns the time zone offset.
+					Returns nil on failure.
+				<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getbias</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2^16)
+print(a:getbias())
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getclockhour"></a>7.3.11. getclockhour</h4></div></div></div><a class="indexterm" name="id356921"></a>Returns the hours value using a 12-hour clock in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getclockhour</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date("10:59:59 pm")
+assert(a:getclockhour()==10)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getdate"></a>7.3.12. getdate</h4></div></div></div><a class="indexterm" name="id356976"></a>Returns the
+			<em class="parameter"><code>year</code></em>,
+			<em class="parameter"><code>month</code></em>, and
+			<em class="parameter"><code>day</code></em> value in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getdate</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(1970, 1, 1)
+y, m, d = a:getdate()
+assert(y == 1970 and m == 1 and d == 1)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getday"></a>7.3.13. getday</h4></div></div></div><a class="indexterm" name="id357044"></a>Returns the day of month value in a <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getday</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1966, 'sep', 6)
+assert(d:getday() == 6)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getfracsec"></a>7.3.14. getfracsec</h4></div></div></div><a class="indexterm" name="id357097"></a>Returns the seconds after the minute (fractional) value in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getfracsec</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date("Wed Apr 04 2181 11:51:06.996 UTC")
+assert(d:getfracsec() == 6.996)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.gethours"></a>7.3.15. gethours</h4></div></div></div><a class="indexterm" name="id357152"></a>Returns the hours value in a <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>gethours</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date("Wed Apr 04 2181 11:51:06 UTC")
+assert(d:gethours() == 11)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getisoweekday"></a>7.3.16. getisoweekday</h4></div></div></div><a class="indexterm" name="id357205"></a>Returns the day of week (sunday=7, monday=1, ...saturday=6) in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getisoweekday</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1970, 1, 1)
+assert(d:getisoweekday() == 4)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getisoweeknumber"></a>7.3.17. getisoweeknumber</h4></div></div></div><a class="indexterm" name="id357261"></a>Returns the ISO 8601 week number (01 to 53) in a <a href="#dateObject">dateObject</a>. Using the Year-WeekOfYear-DayOfWeek date system<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getisoweeknumber</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1975, 12, 29)
+assert(d:getisoweeknumber() == 1)
+assert(d:getisoyear() == 1976)
+assert(d:getisoweekday() == 1)
+d = date(1977, 1, 2)
+assert(d:getisoweeknumber() == 53)
+assert(d:getisoyear() == 1976)
+assert(d:getisoweekday() == 7)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getisoyear"></a>7.3.18. getisoyear</h4></div></div></div><a class="indexterm" name="id357320"></a>Returns the ISO 8601 year in a <a href="#dateObject">dateObject</a>. Using the Year-WeekOfYear-DayOfWeek date system<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getisoyear</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1996, 12, 30)
+assert(d:getisoyear() == 1997)
+d = date(1997, 01, 05)
+assert(d:getisoyear() == 1997)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getminutes"></a>7.3.19. getminutes</h4></div></div></div><a class="indexterm" name="id357377"></a>Returns the minutes after the hour value in a <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getminutes</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date("Wed Apr 04 2181 11:51:06 UTC")
+assert(d:getminutes() == 51)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getmonth"></a>7.3.20. getmonth</h4></div></div></div><a class="indexterm" name="id357430"></a>Returns the month value in a <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getmonth</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1966, 'sep', 6)
+assert(d:getmonth() == 9)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getseconds"></a>7.3.21. getseconds</h4></div></div></div><a class="indexterm" name="id357483"></a>Returns the seconds after the minute value in a <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getseconds</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date("Wed Apr 04 2181 11:51:06.123 UTC")
+assert(d:getseconds() == 6)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getticks"></a>7.3.22. getticks</h4></div></div></div><a class="indexterm" name="id357537"></a>Returns the ticks after the seconds value in a <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getticks</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>For discussion about ticks see <a href="#DaysAndTick" title="7.1. How Date and Time are stored in dateObject">Section 7.1, &#8220;How Date and Time are stored in <code class="classname">dateObject</code>&#8221;</a>.
+			</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date("Wed Apr 04 2181 11:51:06.123 UTC")
+assert(d:getticks() == 123000)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.gettime"></a>7.3.23. gettime</h4></div></div></div><a class="indexterm" name="id357607"></a>Returns the <em class="parameter"><code>hours</code></em>,
+			 <em class="parameter"><code>minutes</code></em>,
+			  <em class="parameter"><code>seconds</code></em> and
+			   <em class="parameter"><code>ticks</code></em> value in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>gettime</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date({hour=5,sec=.5,min=59})
+h, m, s, t = a:gettime()
+assert(t == 500000 and s == 0 and m == 59 and h == 5, tostring(a))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getweekday"></a>7.3.24. getweekday</h4></div></div></div><a class="indexterm" name="id357677"></a>Returns the day of week (sunday=1, monday=2, ...saturday=7) in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getweekday</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1970, 1, 1)
+assert(d:getweekday() == 5)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getweeknumber"></a>7.3.25. getweeknumber</h4></div></div></div><a class="indexterm" name="id357732"></a>Returns the week number value in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getweeknumber</strong></span>([<em class="parameter"><code>int_wdaybase</code></em>])</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_wdaybase</em></span></span></dt><dd>Optional<code class="classname"> integer</code> value. 
+					The starting day of week (1 for sunday, 2 for monday, ... 7 for saturday).
+					If omitted the starting day of week is sunday.
+				</dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date("12/31/1972")
+b,c = a:getweeknumber(), a:getweeknumber(2)
+assert(b==53 and c==52)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getyear"></a>7.3.26. getyear</h4></div></div></div><a class="indexterm" name="id357817"></a>Returns the year value in a <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getyear</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1965, 'jan', 0)
+assert(d:getyear() == 1964)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.getyearday"></a>7.3.27. getyearday</h4></div></div></div><a class="indexterm" name="id357870"></a>Returns the day of year (1-366) in a <a href="#dateObject">dateObject</a>.<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>getyearday</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(2181, 1, 12)
+assert(d:getyearday() == 12)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setday"></a>7.3.28. setday</h4></div></div></div><a class="indexterm" name="id357925"></a>Sets the day of month value in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setday</strong></span>(<em class="parameter"><code>int_mday</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_mday</em></span></span></dt><dd><code class="classname"> integer</code> value. A numeric value equal to the day of month. The default value is <code class="literal">the current day of month</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1966, 'july', 6)
+d:setday(1)
+assert(d == date("1966 july 1"))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.sethours"></a>7.3.29. sethours</h4></div></div></div><a class="indexterm" name="id358043"></a>Sets the hour value in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>sethours</strong></span>(<em class="parameter"><code>num_hour</code></em>, <em class="parameter"><code>num_min</code></em>, <em class="parameter"><code>num_sec</code></em>, <em class="parameter"><code>num_ticks</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_hour</em></span></span></dt><dd><code class="classname"> number</code> value. The hours value. The default value is <code class="literal">the current hours value</code></dd><dt><span class="term"><span class="emphasis"><em>num_min</em></span></span></dt><dd><code class="classname"> number</code> value. The minutes after the hours value. The default value is <code class="literal">the current minutes value</code></dd><dt><span class="term"><span class="emphasis"><em>num_sec</em></span></span></dt><dd><code class="classname"> number</code> value. The seconds after the minute value. The default value is <code class="literal">the current seconds value</code></dd><dt><span class="term"><span class="emphasis"><em>num_ticks</em></span></span></dt><dd><code class="classname"> number</code> value. The ticks after the second value. The default value is <code class="literal">the current ticks value</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1984, 12, 3, 4, 39, 54)
+d:sethours(1, 1, 1)
+assert(d == date("1984 DEc 3 1:1:1"))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setisoweekday"></a>7.3.30. setisoweekday</h4></div></div></div><a class="indexterm" name="id358218"></a>Sets the ISO 8601 week number value in <a href="#dateObject">dateObject</a>. Using the Year-WeekOfYear-DayOfWeek date system<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setisoweekday</strong></span>(<em class="parameter"><code>int_wday</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_wday</em></span></span></dt><dd><code class="classname"> integer</code> value. The day of month. The default value is <code class="literal">the current week day</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date.isodate(1999, 52, 1)
+d:setisoweekday(7)
+assert(d == date(2000, 1, 02))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setisoweeknumber"></a>7.3.31. setisoweeknumber</h4></div></div></div><a class="indexterm" name="id358339"></a>Sets the ISO 8601 week number value in <a href="#dateObject">dateObject</a>. Using the Year-WeekOfYear-DayOfWeek date system<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setisoweeknumber</strong></span>(<em class="parameter"><code>int_week</code></em>, <em class="parameter"><code>int_wday</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_week</em></span></span></dt><dd><code class="classname"> integer</code> value. The month value. The default value is <code class="literal">the current week</code></dd><dt><span class="term"><span class="emphasis"><em>int_wday</em></span></span></dt><dd><code class="classname"> integer</code> value. The day of month. The default value is <code class="literal">the current week day</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1999, 12, 27)
+d:setisoweeknumber(51, 7)
+assert(d == date(1999, 12, 26))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setisoyear"></a>7.3.32. setisoyear</h4></div></div></div><a class="indexterm" name="id358479"></a>Sets the ISO 8601 year value in <a href="#dateObject">dateObject</a>. Using the Year-WeekOfYear-DayOfWeek date system<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setisoyear</strong></span>(<em class="parameter"><code>int_year</code></em>, <em class="parameter"><code>int_week</code></em>, <em class="parameter"><code>int_wday</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_year</em></span></span></dt><dd><code class="classname"> integer</code> value. The year value. The default value is <code class="literal">the current year</code></dd><dt><span class="term"><span class="emphasis"><em>int_week</em></span></span></dt><dd><code class="classname"> integer</code> value. The month value. The default value is <code class="literal">the current week</code></dd><dt><span class="term"><span class="emphasis"><em>int_wday</em></span></span></dt><dd><code class="classname"> integer</code> value. The day of month. The default value is <code class="literal">the current week day</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1999, 12, 27)
+d:setisoyear(2000, 1)
+assert(d == date.isodate(2000,1,1))
+assert(d:getyear() == 2000)
+assert(d:getday() == 3)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setminutes"></a>7.3.33. setminutes</h4></div></div></div><a class="indexterm" name="id358637"></a>Sets the minutes value in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setminutes</strong></span>(<em class="parameter"><code>num_min</code></em>, <em class="parameter"><code>num_sec</code></em>, <em class="parameter"><code>num_ticks</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_min</em></span></span></dt><dd><code class="classname"> number</code> value. The minutes after the value. The default value is <code class="literal">the current minutes value</code></dd><dt><span class="term"><span class="emphasis"><em>num_sec</em></span></span></dt><dd><code class="classname"> number</code> value. The seconds after the minute value. The default value is <code class="literal">the current seconds value</code></dd><dt><span class="term"><span class="emphasis"><em>num_ticks</em></span></span></dt><dd><code class="classname"> number</code> value. The ticks after the second value. The default value is <code class="literal">the current ticks value</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1984, 12, 3, 4, 39, 54)
+d:setminutes(59, 59, 500)
+assert(d == date(1984, 12, 3, 4, 59, 59, 500))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setmonth"></a>7.3.34. setmonth</h4></div></div></div><a class="indexterm" name="id358794"></a>Sets the month value in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setmonth</strong></span>(<em class="parameter"><code>var_month</code></em>, <em class="parameter"><code>int_mday</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>var_month</em></span></span></dt><dd><a href="#ParsableMonthValue">parsable month value</a>. The default value is <code class="literal">the current month</code></dd><dt><span class="term"><span class="emphasis"><em>int_mday</em></span></span></dt><dd><code class="classname"> integer</code> value. The day of month. The default value is <code class="literal">the current day of month</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1966, 'july', 6)
+d:setmonth(1)
+assert(d == date("6 jan 1966"))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setseconds"></a>7.3.35. setseconds</h4></div></div></div><a class="indexterm" name="id358931"></a>Sets the seconds after the minute value in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setseconds</strong></span>(<em class="parameter"><code>num_sec</code></em>, <em class="parameter"><code>num_ticks</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_sec</em></span></span></dt><dd><code class="classname"> number</code> value. The seconds after the minute value. The default value is <code class="literal">the current seconds value</code></dd><dt><span class="term"><span class="emphasis"><em>num_ticks</em></span></span></dt><dd><code class="classname"> number</code> value. The ticks after the second value. The default value is <code class="literal">the current ticks value</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1984, 12, 3, 4, 39, 54)
+d:setseconds(59, date.ticks())
+assert(d == date(1984, 12, 3, 4, 40))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setticks"></a>7.3.36. setticks</h4></div></div></div><a class="indexterm" name="id359069"></a>Sets the ticks after the second value in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setticks</strong></span>(<em class="parameter"><code>num_ticks</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>num_ticks</em></span></span></dt><dd><code class="classname"> number</code> value. The ticks after the second value. The default value is <code class="literal">the current ticks value</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1984, 12, 3, 4, 39, 54)
+d:setticks(444)
+assert(d == date(1984, 12, 3, 4, 39, 54, 444))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.setyear"></a>7.3.37. setyear</h4></div></div></div><a class="indexterm" name="id359188"></a>Sets the year value in <a href="#dateObject">dateObject</a><div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>setyear</strong></span>(<em class="parameter"><code>int_year</code></em>, <em class="parameter"><code>var_month</code></em>, <em class="parameter"><code>int_mday</code></em>)</pre></dd><dt><span class="term"><span class="bold"><strong>Arguments</strong></span></span></dt><dd><div class="variablelist"><dl><dt><span class="term"><span class="emphasis"><em>int_year</em></span></span></dt><dd><code class="classname"> integer</code> value. The year value. The default value is <code class="literal">the current year</code></dd><dt><span class="term"><span class="emphasis"><em>var_month</em></span></span></dt><dd>The month value. The default value is <code class="literal">the current month</code></dd><dt><span class="term"><span class="emphasis"><em>int_mday</em></span></span></dt><dd><code class="classname"> integer</code> value. The day of month. The default value is <code class="literal">the current day of month</code></dd></dl></div></dd><dt><span class="term"><span class="bold"><strong>Returns</strong></span></span></dt><dd><table class="simplelist" border="0" summary="Simple list"><tr><td><span class="emphasis"><em>Success</em></span></td><td>reference to the <a href="#dateObject">dateObject</a></td></tr><tr><td><span class="emphasis"><em>Failure</em></span></td><td>nil.</td></tr></table></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+d = date(1966, 'july', 6)
+d:setyear(2000)
+assert(d == date("jul 6 2000"))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.spandays"></a>7.3.38. spandays</h4></div></div></div><a class="indexterm" name="id359339"></a>Returns how many days the <a href="#dateObject">dateObject</a> has<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>spandays</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2181, "aPr", 4, 6, 30, 30, 15000)
+b = date(a):adddays(2)
+c = date.diff(b, a)
+assert(c:spandays() == (2))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.spanhours"></a>7.3.39. spanhours</h4></div></div></div><a class="indexterm" name="id359393"></a>Returns how many hours the <a href="#dateObject">dateObject</a> has<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>spanhours</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2181, "aPr", 4, 6, 30, 30, 15000)
+b = date(a):adddays(2)
+c = date.diff(b, a)
+assert(c:spanhours() == (2*24))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.spanminutes"></a>7.3.40. spanminutes</h4></div></div></div><a class="indexterm" name="id359446"></a>Returns how many minutes the <a href="#dateObject">dateObject</a> has<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>spanminutes</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2181, "aPr", 4, 6, 30, 30, 15000)
+b = date(a):adddays(2)
+c = date.diff(b, a)
+assert(c:spanminutes() == (2*24*60))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.spanseconds"></a>7.3.41. spanseconds</h4></div></div></div><a class="indexterm" name="id359500"></a>Returns how many seconds the <a href="#dateObject">dateObject</a> has<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>spanseconds</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2181, "aPr", 4, 6, 30, 30, 15000)
+b = date(a):adddays(2)
+c = date.diff(b, a)
+assert(c:spanseconds() == (2*24*60*60))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.spanticks"></a>7.3.42. spanticks</h4></div></div></div><a class="indexterm" name="id359556"></a>Returns how many ticks the <a href="#dateObject">dateObject</a> has<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>spanticks</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Remarks</strong></span></span></dt><dd>For discussion about ticks see <a href="#DaysAndTick" title="7.1. How Date and Time are stored in dateObject">Section 7.1, &#8220;How Date and Time are stored in <code class="classname">dateObject</code>&#8221;</a>.</dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2181, "aPr", 4, 6, 30, 30, 15000)
+b = date(a):adddays(2)
+c = date.diff(b, a)
+assert(c:spanseconds() == (2*24*60*60))
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.tolocal"></a>7.3.43. tolocal</h4></div></div></div><a class="indexterm" name="id359627"></a>	Assuming <a href="#dateObject">dateObject</a> is a utc time.
+					Convert its date and time value to local time.
+				<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>tolocal</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2^16)
+b = a:copy():tolocal();
+print(a,b)
+</pre></dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h4 class="title"><a name="dateObject.toutc"></a>7.3.44. toutc</h4></div></div></div><a class="indexterm" name="id359683"></a>	Assuming <a href="#dateObject">dateObject</a> is a local time.
+					Convert its date and time value to utc time.
+				<div class="variablelist"><dl><dt><span class="term"><span class="bold"><strong>Syntax</strong></span></span></dt><dd><pre class="programlisting">dateObject:<span class="bold"><strong>toutc</strong></span>()</pre></dd><dt><span class="term"><span class="bold"><strong>Example</strong></span></span></dt><dd><pre class="programlisting">
+a = date(2^16)
+b = a:copy():toutc();
+print(a,b)
+</pre></dd></dl></div></div></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="history"></a>8. History</h2></div></div></div><div class="variablelist"><dl><dt><span class="term">v1 (2005)</span></dt><dd>Binary module</dd><dt><span class="term">v2 (2006)</span></dt><dd>Lua module</dd></dl></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="ackno"></a>9. Acknowledgement</h2></div></div></div><p><a href="http://alcor.concordia.ca/~gpkatch/gdate-method.html" target="_top">http://alcor.concordia.ca/~gpkatch/gdate-method.html</a>
+		- Date calculation algorithms is based on this site.</p></div></div></body></html>
