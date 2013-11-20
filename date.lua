@@ -200,7 +200,9 @@
   local fmtstr  = "%x %X";
 --#if not DATE_OBJECT_AFX then
   local date = {}
+
   setmetatable(date, date) -- what use can this possibly be??  should be noop?
+
 -- Version:  VMMMRRRR; V-Major, M-Minor, R-Revision;  e.g. 5.45.321 == 50450321
   date.version = 20010000 -- 2.1.0
 --#end -- not DATE_OBJECT_AFX
@@ -711,7 +713,7 @@
     local arg = pack(...)
 	local pCnt = arg.n or #arg -- to handle different versions of pack func in wrapped envs
     if pCnt  > 1 then return (date_from(...))
-    elseif pCnt == 0 then return (date_getdobj(false))
+   	elseif pCnt == 0 then return (date_getdobj(false))
     else local o, r = date_getdobj(arg[1]);  return r and o:copy() or o end
   end
 
