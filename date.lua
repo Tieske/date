@@ -638,8 +638,8 @@
     return self:fmt0((gmatch(str, "${%w+}")) and (gsub(str, "${%w+}", function(x)local f=tvspec[x];return (f and f(self)) or x end)) or str)
   end
 
-  function dobj.__lt(a,b)  return (a.daynum == b.daynum) and (a.dayfrc < b.dayfrc) or (a.daynum < b.daynum)  end
-  function dobj.__le(a, b)return (a.daynum == b.daynum) and (a.dayfrc <= b.dayfrc) or (a.daynum <= b.daynum)  end
+  function dobj.__lt(a, b) if (a.daynum == b.daynum) then return (a.dayfrc < b.dayfrc) else return (a.daynum < b.daynum) end end
+  function dobj.__le(a, b) if (a.daynum == b.daynum) then return (a.dayfrc <= b.dayfrc) else return (a.daynum <= b.daynum) end end
   function dobj.__eq(a, b)return (a.daynum == b.daynum) and (a.dayfrc == b.dayfrc) end
   function dobj.__sub(a,b)
     local d1, d2 = date_getdobj(a), date_getdobj(b)
