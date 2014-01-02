@@ -14,5 +14,6 @@ Lua Date and Time module for Lua 5.x.
   
 ##Changes:
 
+- v2.1.1 fix for '>=' operator, initial setup of test suite
 - v2.1 Lua 5.2 support. Global 'date' will no longer be set.
 - v2.0 original by Jas Latrix
