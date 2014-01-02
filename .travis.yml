@@ -1,0 +1,28 @@
+language: erlang
+
+env:
+  - LUA="luajit-2.0.0-beta9"
+
+install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq git luajit luarocks
+  - sudo ln -s /usr/bin/luajit-2.0.0-beta9 /usr/bin/luajit
+  - sudo luarocks install busted
+  - git clone git://github.com/Tieske/date.git
+  - cd date
+
+script: "sudo busted"
+
+notifications:
+  webhooks:
+    - http://exobot.herokuapp.com/hubot/travis
+  recipients:
+    - thijs@thijsschreijer.nl
+  email:
+    on_success: always
+    on_failure: always
+    
+branches:
+  except:
+    - gh-pages
+    
