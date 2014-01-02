@@ -11,7 +11,11 @@ Lua Date and Time module for Lua 5.x.
 * Local time support.
 * Lua module (not binary).
 * Formats Date and Time like strftime.
-  
+
+## Tests
+
+Tests are located in the `spec` directory and can be run using [busted](http://olivinelabs.com/busted/).
+
 ##Changes:
 
 - v2.1.1 fix for '>=' operator, initial setup of test suite
