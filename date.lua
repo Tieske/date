@@ -1,8 +1,9 @@
 ---------------------------------------------------------------------------------------
 -- Module for date and time calculations
 --
--- Version 2.1.1, Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
--- Copyright (C) 2013 update to Lua 5.2 by Thijs Schreijer
+-- Version 2.1.1
+-- Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
+-- Copyright (C) 2013-2014, by Thijs Schreijer
 -- Licensed under MIT, http://opensource.org/licenses/MIT
 
 --[[ CONSTANTS ]]--
