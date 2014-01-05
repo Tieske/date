@@ -1,5 +1,5 @@
 package = "date"
-version = "2.1.1-2"
+version = "2.1.1-1"
 
 description = {
    summary = "Date & Time module for Lua 5.x",

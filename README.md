@@ -15,7 +15,12 @@ Lua Date and Time module for Lua 5.x.
 * Formats Date and Time like strftime.
 
 ## License
+
 [MIT license](http://opensource.org/licenses/MIT).
+
+## Documentation
+
+Documentation is available in the `doc` folder, or [online at Github](http://tieske.github.io/date/).
 
 ## Tests
 
