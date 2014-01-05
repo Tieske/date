@@ -1,9 +1,9 @@
 ---------------------------------------------------------------------------------------
 -- Module for date and time calculations
 --
--- Version 2.1.0, Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
--- All Rights Deserved. Use this code at your own risk! Keep out of reach of children. 
+-- Version 2.1.1, Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
 -- Copyright (C) 2013 update to Lua 5.2 by Thijs Schreijer
+-- Licensed under MIT, http://opensource.org/licenses/MIT
 
 --[[ CONSTANTS ]]--
   local HOURPERDAY  = 24
@@ -202,7 +202,7 @@
   local date = {}
   setmetatable(date, date)
 -- Version:  VMMMRRRR; V-Major, M-Minor, R-Revision;  e.g. 5.45.321 == 50450321
-  date.version = 20010000 -- 2.1.0
+  date.version = 20010001 -- 2.1.1
 --#end -- not DATE_OBJECT_AFX
 --[[ THE DATE OBJECT ]]--
   local dobj = {}

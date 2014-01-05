@@ -14,12 +14,15 @@ Lua Date and Time module for Lua 5.x.
 * Lua module (not binary).
 * Formats Date and Time like strftime.
 
+## License
+[MIT license](http://opensource.org/licenses/MIT).
+
 ## Tests
 
 Tests are located in the `spec` directory and can be run using [busted](http://olivinelabs.com/busted/).
 
 ##Changes:
 
-- v2.1.1 fix for '>=' operator, initial setup of test suite, added Travis CI
+- v2.1.1 fix for '>=' operator, added test suite, added Travis CI, license MIT
 - v2.1 Lua 5.2 support. Global 'date' will no longer be set.
 - v2.0 original by Jas Latrix

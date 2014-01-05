@@ -3866,7 +3866,7 @@ dateObject:<span class="bold"><strong>spanticks</strong></span>()
 a = date(2181, "aPr", 4, 6, 30, 30, 15000)
 b = date(a):adddays(2)
 c = date.diff(b, a)
-assert(c:spanseconds() == (2*24*60*60))
+assert(c:spanticks() == (2*24*60*60*1000000))
 </pre>
               </dd>
             </dl>

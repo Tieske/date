@@ -1,5 +1,5 @@
 package = "date"
-version = "2.1.0-2"
+version = "2.1.1-2"
 
 description = {
    summary = "Date & Time module for Lua 5.x",
@@ -8,7 +8,7 @@ description = {
       parsing, time addition & subtraction, time span calculation, support for
       ISO 8601 Dates, local time support, strftime-like formatting.
    ]],
-   license = "Public Domain",
+   license = "MIT",
    homepage = "https://github.com/Tieske/date",
 }
 
@@ -17,8 +17,8 @@ dependencies = {
 }
 
 source = {
-   url = "https://github.com/Tieske/date/archive/version_2.1.tar.gz",
-   dir = "date-version_2.1",
+   url = "https://github.com/Tieske/date/archive/version_2.1.1.tar.gz",
+   dir = "date-version_2.1.1",
 }
 
 build = {
