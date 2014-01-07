@@ -201,7 +201,9 @@
   local fmtstr  = "%x %X";
 --#if not DATE_OBJECT_AFX then
   local date = {}
-  setmetatable(date, date)
+
+  setmetatable(date, date) -- what use can this possibly be??  should be noop?
+
 -- Version:  VMMMRRRR; V-Major, M-Minor, R-Revision;  e.g. 5.45.321 == 50450321
   date.version = 20010001 -- 2.1.1
 --#end -- not DATE_OBJECT_AFX
@@ -438,6 +440,13 @@
   function dobj:getfracsec()  return mod(floor(self.dayfrc/TICKSPERSEC ),SECPERMIN)+(mod(self.dayfrc,TICKSPERSEC)/TICKSPERSEC) end
   function dobj:getticks(u)  local x = mod(self.dayfrc,TICKSPERSEC) return u and ((x*u)/TICKSPERSEC) or x  end
 
+  -- getepoch added by dg
+  function dobj.getepoch(self)
+	  local daysBetween = 719162 -- days between 1/1/1970 and January 1, 0001
+	  local secsInDay = 60*60*24
+	  return floor(((self.daynum - daysBetween) * secsInDay) + (self.dayfrc/TICKSPERSEC))
+  end
+  
   function dobj:getweeknumber(wdb)
     local wd, yd = weekday(self.daynum), yearday(self.daynum)
     if wdb then
@@ -703,8 +712,9 @@
 
   function date:__call(...)
     local arg = pack(...)
-    if arg.n  > 1 then return (date_from(...))
-    elseif arg.n == 0 then return (date_getdobj(false))
+	local pCnt = arg.n or #arg -- to handle different versions of pack func in wrapped envs
+    if pCnt  > 1 then return (date_from(...))
+   	elseif pCnt == 0 then return (date_getdobj(false))
     else local o, r = date_getdobj(arg[1]);  return r and o:copy() or o end
   end
 
