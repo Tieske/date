@@ -598,8 +598,8 @@
     -- Misc --
     -- Year, if year is in BCE, prints the BCE Year representation, otherwise result is similar to "%Y" (1 BCE, 40 BCE)
     ['%\b']=function(self) local x = self:getyear() return fmt("%.4d%s", x>0 and x or (-x+1), x>0 and "" or " BCE") end,
-    -- Seconds including fraction (59.998, 01.123)
-    ['%\f']=function(self) local x = self:getfracsec() return fmt("%s%.9g",x >= 10 and "" or "0", x) end,
+    -- Seconds including fraction (59.998, 01.123) 
+    ['%\f']=function(self) local x = self:getfracsec() return fmt("%s%.9f",x >= 10 and "" or "0", x) end,
     -- percent character %
     ['%%']=function(self) return "%" end,
     -- Group Spec --
