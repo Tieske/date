@@ -180,6 +180,9 @@ describe("Testing the 'date' module", function()
     assert(d:fmt('%T') == d:fmt("%H:%M:%S"))        -- 24-hour time, from 00:00:00 (06:55:15)
     assert(d:fmt('%a %A %b %B') == "Tue Tuesday Oct October")
     assert(d:fmt('%C %d') == "15 05", d:fmt('%C %d'))
+    local d2 = date(1446747300.00008)
+    assert.is.equals(d2:fmt('%\f'),"00.000080109")
+
   end)
 
   it("Tests 'getclockhour()'", function()
