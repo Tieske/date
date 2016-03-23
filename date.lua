@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------
 -- Module for date and time calculations
 --
--- Version 2.1.2
+-- Version 2.2
 -- Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
 -- Copyright (C) 2013-2014, by Thijs Schreijer
 -- Licensed under MIT, http://opensource.org/licenses/MIT

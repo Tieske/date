@@ -1,8 +1,8 @@
-#LuaDate v2.1
+#LuaDate v2.2
 
 [![travis-ci status](https://secure.travis-ci.org/Tieske/date.png)](http://travis-ci.org/#!/Tieske/date/builds)
 
-Lua Date and Time module for Lua 5.x.
+Lua Date and Time module for Lua Openresty.
 
 ##Features:
 
@@ -28,6 +28,7 @@ Tests are located in the `spec` directory and can be run using [busted](http://o
 
 ##Changes:
 
+- v2.2 change it for openresty use [#641ec56](https://github.com/iorichina/date/commit/641ec56e407ea0b1675cc2ffccf6d9bdf59b57aa), not compatible for Lua 5.*
 - v2.1.2 fix scientific notation [#9](https://github.com/Tieske/date/pull/9), now available for Lua 5.3
 - v2.1.1 fix for '>=' operator [#3](https://github.com/Tieske/date/pull/3), added test suite, added Travis CI, license MIT
 - v2.1 Lua 5.2 support. Global 'date' will no longer be set.
