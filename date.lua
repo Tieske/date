@@ -32,7 +32,9 @@
   local math     = math
   local os       = os
   local unpack   = unpack or table.unpack
-  local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
+  -- table.pack may not compiled by jit
+  -- local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
+  local pack     = function(...) return { n = select('#', ...), ... } end
   local setmetatable = setmetatable
   local getmetatable = getmetatable
 --[[ EXTRA FUNCTIONS ]]--
@@ -340,7 +342,7 @@
       print(self.s, " == ", s, " == ", "{", "pos=", self.i, '-', ctx.pos, " ", is, " ", ie, " ", self[1], " ", self[2], " ", self[3], " ", self[4], " ", self[5], "}", err, "===", m and m[0] or m)
     end
     -- if is then self.e, self.i = self.i, 1+ie; if f then f(unpack(self)) end return self end
-    -- do without unpack func
+    -- do without unpack func which was not compiled by luajit
     if is then self.e, self.i = self.i, 1+ie; if f then f(self[1], self[2], self[3], self[4], self[5]) end return self end
   end
    local function date_parse(str)
@@ -350,7 +352,7 @@
     --local function error_out() print(y,m,d,h,r,s) end
     local function error_dup(q, level) --[[error_out()]] level = level or 3; error("duplicate value: " .. (q or "") .. sw:aimchr(), level) end
     local function error_syn(q, level) --[[error_out()]] level = level or 2; error("syntax error: " .. (q or "") .. sw:aimchr(), level) end
-    local function error_inv(q) --[[error_out()]] error("invalid date: " .. (q or "") .. sw:aimchr()) end
+    local function error_inv(q, level) --[[error_out()]] level = level or 2; error("invalid date: " .. (q or "") .. sw:aimchr(), level) end
     local function sety(q) y = y and error_dup() or tonumber(q); end
     local function setm(q) m = (m or w or j) and error_dup(m or w or j) or tonumber(q) end
     local function setd(q) d = d and error_dup() or tonumber(q) end
@@ -766,7 +768,7 @@
   function date.ticks(t) if t then setticks(t) end return TICKSPERSEC  end
 --#end -- not DATE_OBJECT_AFX
 
-  local tm = osdate("!*t", 0);
+  local tm = osdate("!*t", 0)
   if tm then
     date_epoch = date_new(makedaynum(tm.year, tm.month - 1, tm.day), makedayfrc(tm.hour, tm.min, tm.sec, 0))
     -- the distance from our epoch to os epoch in daynum
