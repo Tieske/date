@@ -365,21 +365,21 @@
 
     if not (sw([=[^(\d\d\d\d)]=],sety) and (sw([=[^(\-?)(\d\d)\-?(\d\d)]=],function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or sw([=[^(\-?)[Ww](\d\d)\-?(\d?)]=],function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or sw([=[^\-?(\d\d\d)]=],setj) or sw([=[^\-?(\d\d)]=],function(a) setm(a);setd(1) end))
     and ((sw([=[^\s*[Tt]?(\d\d):?]=],seth) and sw([=[^(\d\d):?]=],setr) and sw([=[^(\d\d)]=],sets) and sw([=[^(\.\d+)]=],adds))
-      or sw:finish() or (sw([=[^\s*$]=]) or sw([=[^\s*[Zz]\s*$]=]) or sw([=[^\s-([\+\-])(\d\d):?(\d\d)\s*$]=],setzc) or sw([=[^\s*([\+\-])(\d\d)\s*$]=],setzn))
+      or sw:finish() or (sw([=[^\s*$]=]) or sw([=[^\s*[Zz]\s*$]=]) or sw([=[^\s*?([\+\-])(\d\d):?(\d\d)\s*$]=],setzc) or sw([=[^\s*([\+\-])(\d\d)\s*$]=],setzn))
       )  )
     then --print(y,m,d,h,r,s,z,w,u,j)
     sw:restart(); y,m,d,h,r,s,z,w,u,j = nil;
       repeat -- print(sw:aimchr())
         if sw([=[^[tT:]?\s*(\d\d?):]=],seth) then --print("$Time")
           _ = sw([=[^\s*(\d\d?)]=],setr) and sw([=[^\s*:\s*(\d\d?)]=],sets) and sw([=[^(\.\d+)]=],adds)
-        elseif sw([=[^(\d+)[/\\\s,-]?\s*]=]) then --print("$Digits")
+        elseif sw([=[^(\d+)[/\\\s,\-]?\s*]=]) then --print("$Digits")
           x, c = tonumber(sw[1]), len(sw[1])
           if (x >= 70) or (m and d and (not y)) or (c > 3) then
             sety( x + ((x >= 100 or c>3)and 0 or 1900) )
           else
             if m then setd(x) else m = x end
           end
-        elseif sw([=[^([a-zA-Z]+)[/\\\s,-]?\s*]=]) then --print("$Words")
+        elseif sw([=[^([a-zA-Z]+)[/\\\s,\-]?\s*]=]) then --print("$Words")
           x = sw[1]
           if inlist(x, sl_months,   2, sw) then
             if m and (not d) and (not y) then d, m = m, false end
@@ -403,7 +403,7 @@
               if x == 'p' and h ~= 12 then h = h + 12 end -- pm
             else error_syn() end
           end
-        elseif not(sw([=[^([+-])(\d\d?):(\d\d)]=],setzc) or sw([=[^([+-])(\d+)]=],setzn) or sw([=[^[Zz]\s*$]=])) then -- sw{"([+-])",{"(%d%d?):(%d%d)","(%d+)"}}
+        elseif not(sw([=[^([\+\-])(\d\d?):(\d\d)]=],setzc) or sw([=[^([\+\-])(\d+)]=],setzn) or sw([=[^[Zz]\s*$]=])) then -- sw{"([+-])",{"(%d%d?):(%d%d)","(%d+)"}}
           error_syn("?")
         end
       sw([=[^\s*]=])  until sw:finish()
