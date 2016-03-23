@@ -349,7 +349,7 @@
     local sw = newstrwalker( ngx_re_gsub( ngx_re_gsub(str, [=[(\([^\)]*\))]=], ""), [=[^(\s*)]=], "") )
     --local function error_out() print(y,m,d,h,r,s) end
     local function error_dup(q, level) --[[error_out()]] level = level or 3; error("duplicate value: " .. (q or "") .. sw:aimchr(), level) end
-    local function error_syn(q) --[[error_out()]] error("syntax error: " .. (q or "") .. sw:aimchr()) end
+    local function error_syn(q, level) --[[error_out()]] level = level or 2; error("syntax error: " .. (q or "") .. sw:aimchr(), level) end
     local function error_inv(q) --[[error_out()]] error("invalid date: " .. (q or "") .. sw:aimchr()) end
     local function sety(q) y = y and error_dup() or tonumber(q); end
     local function setm(q) m = (m or w or j) and error_dup(m or w or j) or tonumber(q) end
@@ -363,9 +363,9 @@
     local function setzn(zs,zn) zn = tonumber(zn); setz( ((zn<24) and (zn*60) or (mod(zn,100) + floor(zn/100) * 60))*( zs=='+' and -1 or 1) ) end
     local function setzc(zs,zh,zm) setz( ((tonumber(zh)*60) + tonumber(zm))*( zs=='+' and -1 or 1) ) end
 
-    if not (sw([=[^(\d\d\d\d)]=],sety) and (sw([=[^(\-?)(\d\d?)\-?(\d\d?)]=],function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or sw([=[^(\-?)[Ww](\d\d)\-?(\d?)]=],function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or sw([=[^\-?(\d\d\d)]=],setj) or sw([=[^\-?(\d\d?)]=],function(a) setm(a);setd(1) end))
-    and ((sw([=[^\s*[Tt]?(\d\d?):?]=],seth) and sw([=[^(\d\d?):?]=],setr) and sw([=[^(\d\d?)]=],sets) and sw([=[^(\.\d+)]=],adds))
-      or sw:finish() or (sw([=[^\s*$]=]) or sw([=[^\s*[Zz]\s*$]=]) or sw([=[^\s-([\+\-])(\d\d):?(\d\d)\s*$]=],setzc) or sw([=[^\s*([\+\-])(\d\d?)\s*$]=],setzn))
+    if not (sw([=[^(\d\d\d\d)]=],sety) and (sw([=[^(\-?)(\d\d)\-?(\d\d)]=],function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or sw([=[^(\-?)[Ww](\d\d)\-?(\d?)]=],function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or sw([=[^\-?(\d\d\d)]=],setj) or sw([=[^\-?(\d\d)]=],function(a) setm(a);setd(1) end))
+    and ((sw([=[^\s*[Tt]?(\d\d):?]=],seth) and sw([=[^(\d\d):?]=],setr) and sw([=[^(\d\d)]=],sets) and sw([=[^(\.\d+)]=],adds))
+      or sw:finish() or (sw([=[^\s*$]=]) or sw([=[^\s*[Zz]\s*$]=]) or sw([=[^\s-([\+\-])(\d\d):?(\d\d)\s*$]=],setzc) or sw([=[^\s*([\+\-])(\d\d)\s*$]=],setzn))
       )  )
     then --print(y,m,d,h,r,s,z,w,u,j)
     sw:restart(); y,m,d,h,r,s,z,w,u,j = nil;
@@ -403,7 +403,7 @@
               if x == 'p' and h ~= 12 then h = h + 12 end -- pm
             else error_syn() end
           end
-        elseif not(sw([=[^([+-])(\d\d?):(\d\d?)]=],setzc) or sw([=[^([+-])(\d+)]=],setzn) or sw([=[^[Zz]\s*$]=])) then -- sw{"([+-])",{"(%d%d?):(%d%d)","(%d+)"}}
+        elseif not(sw([=[^([+-])(\d\d?):(\d\d)]=],setzc) or sw([=[^([+-])(\d+)]=],setzn) or sw([=[^[Zz]\s*$]=])) then -- sw{"([+-])",{"(%d%d?):(%d%d)","(%d+)"}}
           error_syn("?")
         end
       sw([=[^\s*]=])  until sw:finish()
