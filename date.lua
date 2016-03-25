@@ -348,7 +348,7 @@
       print(self.s, " == ", s, " == ", "{", "pos=", self.i, '-', ctx and ctx.pos or nil, " ", is, " ", ie, " ", self[1], " ", self[2], " ", self[3], " ", self[4], " ", self[5], "}", err, "===", m and m[0] or m)
     end
     -- if is then self.e, self.i = self.i, 1+ie; if f then f(unpack(self)) end return self end
-    -- do without unpack func
+    -- do without unpack func which was not compiled by luajit
     if is then self.e, self.i = self.i, 1+ie; if f then f(self[1], self[2], self[3], self[4], self[5]) end return self end
   end
    local function date_parse(str)
@@ -850,7 +850,7 @@
   function date.ticks(t) if t then setticks(t) end return TICKSPERSEC  end
 --#end -- not DATE_OBJECT_AFX
 
-  local tm = osdate("!*t", 0);
+  local tm = osdate("!*t", 0)
   if tm then
     date_epoch = date_new(makedaynum(tm.year, tm.month - 1, tm.day), makedayfrc(tm.hour, tm.min, tm.sec, 0))
     -- the distance from our epoch to os epoch in daynum

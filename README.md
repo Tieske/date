@@ -1,8 +1,8 @@
-#LuaDate v2.1
+#LuaDate v2.2
 
 [![travis-ci status](https://secure.travis-ci.org/Tieske/date.png)](http://travis-ci.org/#!/Tieske/date/builds)
 
-Lua Date and Time module for Lua 5.x.
+Lua Date and Time module for Lua Openresty.
 
 ##Features:
 
