@@ -24,7 +24,21 @@ Documentation is available in the `doc` folder, or [online at Github](http://tie
 
 ## Tests
 
+### sample test
+
+```
+$ lua samples/tests.lua 
+$ luajit samples/tests.lua 
+$ /path/to/openresty/bin/resty samples/tests.lua 
+```
+### unit test
 Tests are located in the `spec` directory and can be run using [busted](http://olivinelabs.com/busted/).
+First you have to install [luarocks](https://luarocks.org/).
+Then run commands below.
+```
+$ /path/to/luarocks/bin/luarocks install busted
+$ /path/to/luarocks/bin/busted spec
+```
 
 ##Changes:
 

@@ -403,23 +403,24 @@
     ) or ( ngx_mode and not (
         sw([=[^(\d\d\d\d)]=],sety) and 
         (
-          sw([=[^(\-?)(\d\d?)\-?(\d\d?)]=],function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or 
+          sw([=[^(\-?)(\d\d)\-?(\d\d)]=],function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or 
           sw([=[^(\-?)[Ww](\d\d)\-?(\d?)]=],function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or 
-          sw([=[^\-?(\d\d\d)]=],setj) or sw([=[^\-?(\d\d?)]=],function(a) setm(a);setd(1) end)
+          sw([=[^\-?(\d\d\d)]=],setj) or 
+          sw([=[^\-?(\d\d)]=],function(a) setm(a);setd(1) end)
         ) and 
         (
           (
-            sw([=[^\s*[Tt]?(\d\d?):?]=],seth) and 
-            sw([=[^(\d\d?):?]=],setr) and 
-            sw([=[^(\d\d?)]=],sets) and 
+            sw([=[^\s*[Tt]?(\d\d):?]=],seth) and 
+            sw([=[^(\d\d):?]=],setr) and 
+            sw([=[^(\d\d)]=],sets) and 
             sw([=[^(\.\d+)]=],adds)
           ) or 
           sw:finish() or 
           (
             sw([=[^\s*$]=]) or 
             sw([=[^\s*[Zz]\s*$]=]) or 
-            sw([=[^\s-([\+\-])(\d\d):?(\d\d)\s*$]=],setzc) or 
-            sw([=[^\s*([\+\-])(\d\d?)\s*$]=],setzn)
+            sw([=[^\s*?([\+\-])(\d\d):?(\d\d)\s*$]=],setzc) or 
+            sw([=[^\s*([\+\-])(\d\d)\s*$]=],setzn)
           )
         )
       )
@@ -486,7 +487,7 @@
             else error_syn() end
           end
         elseif (not ngx_mode and (not(sw("^([+-])(%d%d?):(%d%d)",setzc) or sw("^([+-])(%d+)",setzn) or sw("^[Zz]%s*$")))) or 
-          (ngx_mode and (not(sw([=[^([+-])(\d\d?):(\d\d?)]=],setzc) or sw([=[^([+-])(\d+)]=],setzn) or sw([=[^[Zz]\s*$]=]))))
+          (ngx_mode and (not(sw([=[^([+-])(\d\d?):(\d\d)]=],setzc) or sw([=[^([+-])(\d+)]=],setzn) or sw([=[^[Zz]\s*$]=]))))
         then -- sw{"([+-])",{"(%d%d?):(%d%d)","(%d+)"}}
           error_syn("?")
         end
