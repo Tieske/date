@@ -325,7 +325,7 @@
         elseif sw("^(%d+)[/\\%s,-]?%s*") then --print("$Digits")
           x, c = tonumber(sw[1]), len(sw[1])
           if (x >= 70) or (m and d and (not y)) or (c > 3) then
-            sety( x + ((x >= 100 or c>3)and 0 or 1900) )
+            sety( x + ((x >= 100 or c>3) and 0 or x<41 and 2000 or 1900) )
           else
             if m then setd(x) else m = x end
           end
