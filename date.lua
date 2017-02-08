@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------
 -- Module for date and time calculations
 --
--- Version 2.1.1
+-- Version 2.2.1
 -- Copyright (C) 2006, by Jas Latrix (jastejada@yahoo.com)
 -- Copyright (C) 2013-2014, by Thijs Schreijer
 -- Licensed under MIT, http://opensource.org/licenses/MIT
@@ -21,6 +21,20 @@
   local DAYNUM_MIN = -365242500 -- Mon Jan 01 1000000 BCE 00:00:00
   local DAYNUM_DEF =  0 -- Mon Jan 01 0001 00:00:00
   local _;
+-- [[ for debug ]]
+  local debug_mode = false
+-- [[ jit mode ]]
+  local jit_mode = jit and true or false
+-- [[ ngx api ]]
+  local ngx_mode = ngx and true or false
+  local ngx_re_gsub
+  local ngx_re_find
+  local ngx_re_match
+  if ngx_mode then
+    ngx_re_gsub = ngx.re.gsub
+    ngx_re_find = ngx.re.find
+    ngx_re_match = ngx.re.match
+  end
 --[[ LOCAL ARE FASTER ]]--
   local type     = type
   local pairs    = pairs
@@ -32,7 +46,7 @@
   local math     = math
   local os       = os
   local unpack   = unpack or table.unpack
-  local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
+  local pack     = (not jit_mode) and table.pack or function(...) return { n = select('#', ...), ... } end
   local setmetatable = setmetatable
   local getmetatable = getmetatable
 --[[ EXTRA FUNCTIONS ]]--
@@ -304,17 +318,52 @@
   function strwalker:back()  self.i = self.e return self  end
   function strwalker:restart() self.i, self.e = 1, 1 return self end
   function strwalker:match(s)  return (find(self.s, s, self.i)) end
-  function strwalker:__call(s, f)-- print("strwalker:__call "..s..self:aimchr())
-    local is, ie; is, ie, self[1], self[2], self[3], self[4], self[5] = find(self.s, s, self.i)
-    if is then self.e, self.i = self.i, 1+ie; if f then f(unpack(self)) end return self end
+  function strwalker:__call(s, f, plain)-- print("strwalker:__call "..s..self:aimchr())
+    plain = plain or false
+    local is, ie
+    local ctx, m, err
+    if plain or (not ngx_mode) then
+      is, ie, self[1], self[2], self[3], self[4], self[5] = find(self.s, s, self.i, plain)
+
+    else
+      -- we can not use 5th arg in ngx_re_match, cause there is a bug of ngx_re_match in openresty/1.9.7.2, this bug will make ctx.pos invalid.
+      -- #see https://github.com/openresty/lua-nginx-module/issues/719
+
+      -- ctx = { pos = self.i }
+      -- local m, err = ngx_re_match(self.s, s, "jo", ctx)
+      ctx = {}
+      m, err = ngx_re_match(sub(self.s, self.i), s, "jo", ctx)
+
+      if m then
+        ctx.pos = ctx.pos + self.i - 1
+        -- var 'is' is not so important
+        is, ie = true, ctx.pos - 1
+        self[1], self[2], self[3], self[4], self[5] = m[1], m[2], m[3], m[4], m[5]
+      else
+        self[1], self[2], self[3], self[4], self[5] = nil
+      end
+      
+    end
+    if debug_mode then
+      print(self.s, " == ", s, " == ", "{", "pos=", self.i, '-', ctx and ctx.pos or nil, " ", is, " ", ie, " ", self[1], " ", self[2], " ", self[3], " ", self[4], " ", self[5], "}", err, "===", m and m[0] or m)
+    end
+    -- if is then self.e, self.i = self.i, 1+ie; if f then f(unpack(self)) end return self end
+    -- do without unpack func which was not compiled by luajit
+    if is then self.e, self.i = self.i, 1+ie; if f then f(self[1], self[2], self[3], self[4], self[5]) end return self end
   end
    local function date_parse(str)
-    local y,m,d, h,r,s,  z,  w,u, j,  e,  k,  x,v,c,  chkfin,  dn,df;
-    local sw = newstrwalker(gsub(gsub(str, "(%b())", ""),"^(%s*)","")) -- remove comment, trim leading space
+    local y,m,d, h,r,s,  z,  w,u, j,  e,  k,  x,v,c,  chkfin,  dn,df
+    -- local sw = newstrwalker(gsub(gsub(str, "(%b())", ""),"^(%s*)","")) -- remove comment, trim leading space
+    local sw
+    if ngx_mode then
+       sw = newstrwalker( ngx_re_gsub( ngx_re_gsub(str, [=[(\([^\)]*\))]=], ""), [=[^(\s*)]=], "") )
+     else
+       sw = newstrwalker(gsub(gsub(str, "(%b())", ""),"^(%s*)",""))
+     end
     --local function error_out() print(y,m,d,h,r,s) end
-    local function error_dup(q) --[[error_out()]] error("duplicate value: " .. (q or "") .. sw:aimchr()) end
-    local function error_syn(q) --[[error_out()]] error("syntax error: " .. (q or "") .. sw:aimchr()) end
-    local function error_inv(q) --[[error_out()]] error("invalid date: " .. (q or "") .. sw:aimchr()) end
+    local function error_dup(q, level) --[[error_out()]] level = level or 3; error("duplicate value: " .. (q or "") .. sw:aimchr(), level) end
+    local function error_syn(q, level) --[[error_out()]] level = level or 2; error("syntax error: " .. (q or "") .. sw:aimchr(), level) end
+    local function error_inv(q, level) --[[error_out()]] level = level or 2; error("invalid date: " .. (q or "") .. sw:aimchr(), level) end
     local function sety(q) y = y and error_dup() or tonumber(q); end
     local function setm(q) m = (m or w or j) and error_dup(m or w or j) or tonumber(q) end
     local function setd(q) d = d and error_dup() or tonumber(q) end
@@ -327,23 +376,75 @@
     local function setzn(zs,zn) zn = tonumber(zn); setz( ((zn<24) and (zn*60) or (mod(zn,100) + floor(zn/100) * 60))*( zs=='+' and -1 or 1) ) end
     local function setzc(zs,zh,zm) setz( ((tonumber(zh)*60) + tonumber(zm))*( zs=='+' and -1 or 1) ) end
 
-    if not (sw("^(%d%d%d%d)",sety) and (sw("^(%-?)(%d%d)%1(%d%d)",function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or sw("^(%-?)[Ww](%d%d)%1(%d?)",function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or sw("^%-?(%d%d%d)",setj) or sw("^%-?(%d%d)",function(a) setm(a);setd(1) end))
-    and ((sw("^%s*[Tt]?(%d%d):?",seth) and sw("^(%d%d):?",setr) and sw("^(%d%d)",sets) and sw("^(%.%d+)",adds))
-      or sw:finish() or (sw"^%s*$" or sw"^%s*[Zz]%s*$" or sw("^%s-([%+%-])(%d%d):?(%d%d)%s*$",setzc) or sw("^%s*([%+%-])(%d%d)%s*$",setzn))
-      )  )
+    if (not ngx_mode and not (
+        sw("^(%d%d%d%d)",sety) and 
+        (
+          sw("^(%-?)(%d%d)%1(%d%d)",function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or 
+          sw("^(%-?)[Ww](%d%d)%1(%d?)",function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or 
+          sw("^%-?(%d%d%d)",setj) or 
+          sw("^%-?(%d%d)",function(a) setm(a);setd(1) end)
+        ) and 
+        (
+          (
+            sw("^%s*[Tt]?(%d%d):?",seth) and 
+            sw("^(%d%d):?",setr) and 
+            sw("^(%d%d)",sets) and 
+            sw("^(%.%d+)",adds)
+          ) or 
+          sw:finish() or 
+          (
+            sw"^%s*$" or 
+            sw"^%s*[Zz]%s*$" or 
+            sw("^%s-([%+%-])(%d%d):?(%d%d)%s*$",setzc) or 
+            sw("^%s*([%+%-])(%d%d)%s*$",setzn)
+          )
+        )
+      )
+    ) or ( ngx_mode and not (
+        sw([=[^(\d\d\d\d)]=],sety) and 
+        (
+          sw([=[^(\-?)(\d\d)\-?(\d\d)]=],function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or 
+          sw([=[^(\-?)[Ww](\d\d)\-?(\d?)]=],function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or 
+          sw([=[^\-?(\d\d\d)]=],setj) or 
+          sw([=[^\-?(\d\d)]=],function(a) setm(a);setd(1) end)
+        ) and 
+        (
+          (
+            sw([=[^\s*[Tt]?(\d\d):?]=],seth) and 
+            sw([=[^(\d\d):?]=],setr) and 
+            sw([=[^(\d\d)]=],sets) and 
+            sw([=[^(\.\d+)]=],adds)
+          ) or 
+          sw:finish() or 
+          (
+            sw([=[^\s*$]=]) or 
+            sw([=[^\s*[Zz]\s*$]=]) or 
+            sw([=[^\s*?([\+\-])(\d\d):?(\d\d)\s*$]=],setzc) or 
+            sw([=[^\s*([\+\-])(\d\d)\s*$]=],setzn)
+          )
+        )
+      )
+    )
     then --print(y,m,d,h,r,s,z,w,u,j)
-    sw:restart(); y,m,d,h,r,s,z,w,u,j = nil;
+      sw:restart()
+      y,m,d,h,r,s,z,w,u,j = nil
       repeat -- print(sw:aimchr())
-        if sw("^[tT:]?%s*(%d%d?):",seth) then --print("$Time")
+        if not ngx_mode and sw("^[tT:]?%s*(%d%d?):",seth) then --print("$Time")
           _ = sw("^%s*(%d%d?)",setr) and sw("^%s*:%s*(%d%d?)",sets) and sw("^(%.%d+)",adds)
-        elseif sw("^(%d+)[/\\%s,-]?%s*") then --print("$Digits")
+        elseif ngx_mode and sw([=[^[tT:]?\s*(\d\d?):]=],seth) then --print("$Time")
+          _ = sw([=[^\s*(\d\d?)]=],setr) and sw([=[^\s*:\s*(\d\d?)]=],sets) and sw([=[^(\.\d+)]=],adds)
+        elseif (not ngx_mode and sw("^(%d+)[/\\%s,-]?%s*")) or 
+          (ngx_mode and sw([=[^(\d+)[/\\\s,-]?\s*]=]))
+        then --print("$Digits")
           x, c = tonumber(sw[1]), len(sw[1])
           if (x >= 70) or (m and d and (not y)) or (c > 3) then
             sety( x + ((x >= 100 or c>3)and 0 or 1900) )
           else
             if m then setd(x) else m = x end
           end
-        elseif sw("^(%a+)[/\\%s,-]?%s*") then --print("$Words")
+        elseif (not ngx_mode and sw("^(%a+)[/\\%s,-]?%s*")) or 
+          (ngx_mode and sw([=[^([a-zA-Z]+)[/\\\s,-]?\s*]=])) 
+        then --print("$Words")
           x = sw[1]
           if inlist(x, sl_months,   2, sw) then
             if m and (not d) and (not y) then d, m = m, false end
@@ -356,21 +457,41 @@
           else
             sw:back()
             -- am pm bce ad ce bc
-            if sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*[Ee]%s*(%2)%s*") or sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*") then
-              e = e and error_dup() or -1
-            elseif sw("^([aA])%s*(%.?)%s*[Dd]%s*(%2)%s*") or sw("^([cC])%s*(%.?)%s*[Ee]%s*(%2)%s*") then
-              e = e and error_dup() or 1
-            elseif sw("^([PApa])%s*(%.?)%s*[Mm]?%s*(%2)%s*") then
+            if (
+                not ngx_mode and 
+                (
+                  sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*[Ee]%s*(%2)%s*") or 
+                  sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*")
+                )
+              ) or 
+              (
+                ngx_mode and 
+                (
+                  sw([=[^([bB])\s*(\.?)\s*[Cc]\s*(\.?)\s*[Ee]\s*(\.?)\s*]=]) or 
+                  sw([=[^([bB])\s*(\.?)\s*[Cc]\s*(\.?)\s*]=])
+                )
+              )
+            then
+              e = e and error_dup(nil, 2) or -1
+            elseif (not ngx_mode and (sw("^([aA])%s*(%.?)%s*[Dd]%s*(%2)%s*") or sw("^([cC])%s*(%.?)%s*[Ee]%s*(%2)%s*"))) or 
+              (ngx_mode and (sw([=[^([aA])\s*(\.?)\s*[Dd]\s*(\.?)\s*]=]) or sw([=[^([cC])\s*(\.?)\s*[Ee]\s*(\.?)\s*]=])))
+            then
+              e = e and error_dup(nil, 2) or 1
+            elseif (not ngx_mode and sw("^([PApa])%s*(%.?)%s*[Mm]?%s*(%2)%s*")) or 
+                (ngx_mode and sw([=[^([PApa])\s*(\.?)\s*[Mm]?\s*(\.?)\s*]=]))
+            then
               x = lwr(sw[1]) -- there should be hour and it must be correct
               if (not h) or (h > 12) or (h < 0) then return error_inv() end
               if x == 'a' and h == 12 then h = 0 end -- am
               if x == 'p' and h ~= 12 then h = h + 12 end -- pm
             else error_syn() end
           end
-        elseif not(sw("^([+-])(%d%d?):(%d%d)",setzc) or sw("^([+-])(%d+)",setzn) or sw("^[Zz]%s*$")) then -- sw{"([+-])",{"(%d%d?):(%d%d)","(%d+)"}}
+        elseif (not ngx_mode and (not(sw("^([+-])(%d%d?):(%d%d)",setzc) or sw("^([+-])(%d+)",setzn) or sw("^[Zz]%s*$")))) or 
+          (ngx_mode and (not(sw([=[^([+-])(\d\d?):(\d\d)]=],setzc) or sw([=[^([+-])(\d+)]=],setzn) or sw([=[^[Zz]\s*$]=]))))
+        then -- sw{"([+-])",{"(%d%d?):(%d%d)","(%d+)"}}
           error_syn("?")
         end
-      sw("^%s*")  until sw:finish()
+      if not ngx_mode then sw("^%s*") else sw([=[^\s*]=]) end until sw:finish()
     --else print("$Iso(Date|Time|Zone)")
     end
     -- if date is given, it must be complete year, month & day
@@ -730,13 +851,18 @@
   function date.ticks(t) if t then setticks(t) end return TICKSPERSEC  end
 --#end -- not DATE_OBJECT_AFX
 
-  local tm = osdate("!*t", 0);
+  local tm = osdate("!*t", 0)
   if tm then
     date_epoch = date_new(makedaynum(tm.year, tm.month - 1, tm.day), makedayfrc(tm.hour, tm.min, tm.sec, 0))
     -- the distance from our epoch to os epoch in daynum
     DATE_EPOCH = date_epoch and date_epoch:spandays()
   else -- error will be raise only if called!
     date_epoch = setmetatable({},{__index = function() error("failed to get the epoch date") end})
+  end
+
+  -- debug status on(true)/off(false)
+  function date.debug(status)
+    debug_mode = status
   end
 
 --#if not DATE_OBJECT_AFX then

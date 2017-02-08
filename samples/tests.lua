@@ -301,9 +301,9 @@ assert(c:spanseconds() == (2*24*60*60))
 
 a = date(2^16)
 b = a:copy():tolocal();
-print(a,b)
+print(tostring(a),tostring(b))
 
 a = date(2^16)
 b = a:copy():toutc();
-print(a,b)
+print(tostring(a),tostring(b))
 
