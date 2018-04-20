@@ -32,7 +32,6 @@
   local math     = math
   local os       = os
   local unpack   = unpack or table.unpack
-  local pack     = table.pack or function(...) return { n = select('#', ...), ... } end
   local setmetatable = setmetatable
   local getmetatable = getmetatable
 --[[ EXTRA FUNCTIONS ]]--
@@ -403,10 +402,9 @@
     return (o and o:normalize() or error"invalid date time value"), r -- if r is true then o is a reference to a date obj
   end
 --#end -- not DATE_OBJECT_AFX
-  local function date_from(...)
-    local arg = pack(...)
-    local y, m, d = fix(arg[1]), getmontharg(arg[2]), fix(arg[3])
-    local h, r, s, t = tonumber(arg[4] or 0), tonumber(arg[5] or 0), tonumber(arg[6] or 0), tonumber(arg[7] or 0)
+  local function date_from(arg1, arg2, arg3, arg4, arg5, arg6, arg7)
+    local y, m, d = fix(arg1), getmontharg(arg2), fix(arg3)
+    local h, r, s, t = tonumber(arg4 or 0), tonumber(arg5 or 0), tonumber(arg6 or 0), tonumber(arg7 or 0)
     if y and m and d and h and r and s and t then
       return date_new(makedaynum(y, m, d), makedayfrc(h, r, s, t)):normalize()
     else
@@ -701,11 +699,11 @@
     end
   end
 
-  function date:__call(...)
-    local arg = pack(...)
-    if arg.n  > 1 then return (date_from(...))
-    elseif arg.n == 0 then return (date_getdobj(false))
-    else local o, r = date_getdobj(arg[1]);  return r and o:copy() or o end
+  function date:__call(arg1, ...)
+    local arg_count = select("#", ...) + (arg1 == nil and 0 or 1)
+    if arg_count  > 1 then return (date_from(arg1, ...))
+    elseif arg_count == 0 then return (date_getdobj(false))
+    else local o, r = date_getdobj(arg1);  return r and o:copy() or o end
   end
 
   date.diff = dobj.__sub
