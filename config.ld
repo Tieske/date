@@ -1,7 +1,0 @@
-project='LuaDate'
-title='LuaDate; Date and time library'
-description='Module for date and time manipulation, with timezone, string parsing, timespan support'
-format='discount'
-file='./date.lua'
-dir='LDoc'
-readme='readme.md'
