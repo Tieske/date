@@ -37,7 +37,6 @@
 --[[ EXTRA FUNCTIONS ]]--
   local fmt  = string.format
   local lwr  = string.lower
-  local upr  = string.upper
   local rep  = string.rep
   local len  = string.len
   local sub  = string.sub
@@ -53,10 +52,6 @@
   local function fix(n) n = tonumber(n) return n and ((n > 0 and floor or ceil)(n)) end
   -- returns the modulo n % d;
   local function mod(n,d) return n - d*floor(n/d) end
-  -- rounds a number;
-  local function round(n, d) d=d^10 return floor((n*d)+.5)/d end
-  -- rounds a number to whole;
-  local function whole(n)return floor(n+.5)end
   -- is `str` in string list `tbl`, `ml` is the minimun len
   local function inlist(str, tbl, ml, tn)
     local sl = len(str)
@@ -70,7 +65,6 @@
     end
   end
   local function fnil() end
-  local function fret(x)return x;end
 --[[ DATE FUNCTIONS ]]--
   local DATE_EPOCH -- to be set later
   local sl_weekdays = {
@@ -214,10 +208,6 @@
   local function date_new(dn, df)
     return setmetatable({daynum=dn, dayfrc=df}, dobj)
   end
-  -- is `v` a date object?
-  local function date_isdobj(v)
-    return (type(v) == 'table' and getmetatable(v) == dobj) and v
-  end
 
 --#if not NO_LOCAL_TIME_SUPPORT then
   -- magic year table
@@ -226,7 +216,7 @@
     assert(not yt)
     yt = {}
     local de, dw, dy = date_epoch:copy()
-    for i = 0, 3000 do
+    for _ = 0, 3000 do
       de:setyear(de:getyear() + 1, 1, 1)
       dy = de:getyear()
       dw = de:getweekday() * (isleapyear(dy) and  -1 or 1)
@@ -236,10 +226,6 @@
         return getequivyear(y)
       end
     end
-  end
-  -- TimeValue from daynum and dayfrc
-  local function dvtotv(dn, df)
-    return fix(dn - DATE_EPOCH) * SECPERDAY  + (df/1000)
   end
   -- TimeValue from date and time
   local function totv(y,m,d,h,r,s)
@@ -308,7 +294,7 @@
     if is then self.e, self.i = self.i, 1+ie; if f then f(unpack(self)) end return self end
   end
    local function date_parse(str)
-    local y,m,d, h,r,s,  z,  w,u, j,  e,  k,  x,v,c,  chkfin,  dn,df;
+    local y,m,d, h,r,s,  z,  w,u, j,  e,  k,  x,c,  dn,df;
     local sw = newstrwalker(gsub(gsub(str, "(%b())", ""),"^(%s*)","")) -- remove comment, trim leading space
     --local function error_out() print(y,m,d,h,r,s) end
     local function error_dup(q) --[[error_out()]] error("duplicate value: " .. (q or "") .. sw:aimchr()) end
