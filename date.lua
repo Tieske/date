@@ -20,25 +20,12 @@
   local DAYNUM_MAX =  365242500 -- Sat Jan 01 1000000 00:00:00
   local DAYNUM_MIN = -365242500 -- Mon Jan 01 1000000 BCE 00:00:00
   local DAYNUM_DEF =  0 -- Mon Jan 01 0001 00:00:00
-  local _;
---[[ LOCAL ARE FASTER ]]--
-  local type     = type
-  local pairs    = pairs
-  local error    = error
-  local assert   = assert
-  local tonumber = tonumber
-  local tostring = tostring
-  local string   = string
-  local math     = math
-  local os       = os
+  local _
   local unpack   = unpack or table.unpack
-  local setmetatable = setmetatable
-  local getmetatable = getmetatable
 --[[ EXTRA FUNCTIONS ]]--
   local fmt  = string.format
   local lwr  = string.lower
   local rep  = string.rep
-  local len  = string.len
   local sub  = string.sub
   local gsub = string.gsub
   local gmatch = string.gmatch or string.gfind
@@ -54,7 +41,7 @@
   local function mod(n,d) return n - d*floor(n/d) end
   -- is `str` in string list `tbl`, `ml` is the minimun len
   local function inlist(str, tbl, ml, tn)
-    local sl = len(str)
+    local sl = #str
     if sl < (ml or 0) then return nil end
     str = lwr(str)
     for k, v in pairs(tbl) do
@@ -283,7 +270,7 @@
   -- the date parser
   local strwalker = {} -- ^Lua regular expression is not as powerful as Perl$
   strwalker.__index = strwalker
-  local function newstrwalker(s)return setmetatable({s=s, i=1, e=1, c=len(s)}, strwalker) end
+  local function newstrwalker(s)return setmetatable({s=s, i=1, e=1, c=#s}, strwalker) end
   function strwalker:aimchr() return "\n" .. self.s .. "\n" .. rep(".",self.e-1) .. "^" end
   function strwalker:finish() return self.i > self.c  end
   function strwalker:back()  self.i = self.e return self  end
@@ -322,7 +309,7 @@
         if sw("^[tT:]?%s*(%d%d?):",seth) then --print("$Time")
           _ = sw("^%s*(%d%d?)",setr) and sw("^%s*:%s*(%d%d?)",sets) and sw("^(%.%d+)",adds)
         elseif sw("^(%d+)[/\\%s,-]?%s*") then --print("$Digits")
-          x, c = tonumber(sw[1]), len(sw[1])
+          x, c = tonumber(sw[1]), #sw[1]
           if (x >= 70) or (m and d and (not y)) or (c > 3) then
             sety( x + ((x >= 100 or c>3)and 0 or 1900) )
           else
