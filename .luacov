@@ -1,0 +1,6 @@
+modules = {
+   ["date"] = "src/date.lua",
+   ["date.*"] = "src"
+}
+runreport = true
+deletestats = false

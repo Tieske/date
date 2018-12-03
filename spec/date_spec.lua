@@ -20,12 +20,12 @@ describe("Testing the 'date' module", function()
     assert(date("Jul 27 2006 MDT") == date(2006,07,27,6,0,0))
     assert(date("Jul 27 2006 PST") == date(2006,07,27,8,0,0))
     assert(date("Jul 27 2006 PDT") == date(2006,07,27,7,0,0))
-    -- Date Format.  Short dates can use either a "/" or "-" date separator, 
+    -- Date Format.  Short dates can use either a "/" or "-" date separator,
     -- but must follow the month/day/year format
     assert(date("02-03-04")==date(1904,02,03))
     assert(date("12/25/98")==date(1998,12,25))
-    -- Long dates of the form "July 10 1995" can be given with the year, month, 
-    -- and day in any order, and the year in 2-digit or 4-digit form. If you use 
+    -- Long dates of the form "July 10 1995" can be given with the year, month,
+    -- and day in any order, and the year in 2-digit or 4-digit form. If you use
     -- the 2-digit form, the year must be greater than or equal to 70.
     assert(date("Feb-03-04")==date(1904,02,03))
     assert(date("December 25 1998")==date(1998,12,25))
@@ -33,20 +33,20 @@ describe("Testing the 'date' module", function()
     assert(date("Feb 3 0003 BC")==date(-2,02,03))
     assert(date("December 25 0001 BC")==date(0,12,25))
 
-    -- Supported ISO 8601 Formats. 
-    -- YYYY-MM-DDwhere YYYY is the year, MM is the month of the year, and DD is the 
-	-- day of the month. 
+    -- Supported ISO 8601 Formats.
+    -- YYYY-MM-DDwhere YYYY is the year, MM is the month of the year, and DD is the
+	-- day of the month.
     assert(date("2000-12-31")==date(2000,12,31))
     assert(date(" 20001231 ")==date(2000,12,31)) -- Compact version
-    -- YYYY-DDDwhere YYYY is the year, DDD is the day of the year. 
+    -- YYYY-DDDwhere YYYY is the year, DDD is the day of the year.
     assert(date("1995-035")==date(1995,02,04))
     assert(date("1995035 ")==date(1995,02,04)) -- Compact version
-    -- YYYY-WDD-Dwhere YYYY is the year, DD is the week of the year, D is the day of 
-    -- the week. 
+    -- YYYY-WDD-Dwhere YYYY is the year, DD is the week of the year, D is the day of
+    -- the week.
     assert(date("1997-W01-1")==date(1996,12,30))
     assert(date("  1997W017")==date(1997,01,05)) -- Compact version
-    -- DATE HH:MM:SS.SSSWhere DATE is the date format discuss above, HH is the hour, 
-    -- MM is the miute, SS.SSS is the seconds (fraction is optional). 
+    -- DATE HH:MM:SS.SSSWhere DATE is the date format discuss above, HH is the hour,
+    -- MM is the miute, SS.SSS is the seconds (fraction is optional).
     assert(date("1995-02-04 24:00:51.536")==date(1995,2,5,0,0,51.536))
     assert(date("1976-W01-1 12:12:12.123")==date(1975,12,29,12,12,12.123))
     assert(date("1995-035 23:59:59.99999")==date(1995,02,04,23,59,59.99999))
@@ -55,8 +55,8 @@ describe("Testing the 'date' module", function()
     assert(date("  1976W011T121212.123  ")==date(1975,12,29,12,12,12.123))
     assert(date(" 1995035T235959.99999  ")==date(1995,02,04,23,59,59.99999))
     -- DATE TIME +HH:MM, DATE TIME -HHMM, DATE TIME Z,Where DATE and TIME is the date
-    -- and time format discuss above. First character is a sign "+" (east of UTC) or "-" 
-    -- (west of UTC). HH and MM is Hours and minutes offset. The Z stands for the zero offset. 
+    -- and time format discuss above. First character is a sign "+" (east of UTC) or "-"
+    -- (west of UTC). HH and MM is Hours and minutes offset. The Z stands for the zero offset.
     assert(date("1976-W01-1 12:00Z     ")==date(1975,12,29,12))
     assert(date("1976-W01-1 13:00+01:00")==date(1975,12,29,12))
     assert(date("1976-W01-1 0700-0500  ")==date(1975,12,29,12))
@@ -261,7 +261,7 @@ describe("Testing the 'date' module", function()
   end)
 
   it("Tests 'getweekday()'", function()
-    d = date(1970, 1, 1)
+    local d = date(1970, 1, 1)
     assert(d:getweekday() == 5)
   end)
 

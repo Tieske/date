@@ -1,5 +1,11 @@
 return {
   default = {
-    output = "TAP"
+    verbose = true,
+    coverage = true,
+    output = "gtest",
+    ROOT = {
+      "spec/",
+      --"examples/vcache.lua",
+    },
   },
 }

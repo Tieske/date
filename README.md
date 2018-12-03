@@ -1,10 +1,11 @@
-#LuaDate v2.1
+# LuaDate v2.1
 
-[![travis-ci status](https://secure.travis-ci.org/Tieske/date.png)](http://travis-ci.org/#!/Tieske/date/builds)
+[![Build Status](https://travis-ci.org/Tieske/date.svg?branch=master)](https://travis-ci.org/Tieske/date)
+[![Coverage Status](https://coveralls.io/repos/github/Tieske/date/badge.svg?branch=master)](https://coveralls.io/github/Tieske/date?branch=master)
 
 Lua Date and Time module for Lua 5.x.
 
-##Features:
+## Features:
 
 * Date and Time string parsing.
 * Time addition and subtraction.
@@ -26,7 +27,7 @@ Documentation is available in the `doc` folder, or [online at Github](http://tie
 
 Tests are located in the `spec` directory and can be run using [busted](http://olivinelabs.com/busted/).
 
-##Changes:
+## Changes:
 
 - v2.1.2 fix scientific notation [#9](https://github.com/Tieske/date/pull/9), now available for Lua 5.3
 - v2.1.1 fix for '>=' operator [#3](https://github.com/Tieske/date/pull/3), added test suite, added Travis CI, license MIT

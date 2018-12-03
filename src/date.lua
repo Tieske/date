@@ -38,7 +38,7 @@
   local fmt  = string.format
   local lwr  = string.lower
   local rep  = string.rep
-  local len  = string.len
+  local len  = string.len  -- luacheck: ignore
   local sub  = string.sub
   local gsub = string.gsub
   local gmatch = string.gmatch or string.gfind
@@ -131,9 +131,9 @@
     local y = (n400*400) + (n100*100) + (n004*4) + n001  - ((n001 == 4 or n100 == 4) and 1 or 0)
     local d = g - dayfromyear(y)
     local mi = floor((100*d + 52)/3060)
-    return (floor((mi + 2)/12) + y), mod(mi + 2,12), (d - floor((mi*306 + 5)/10) + 1)    
+    return (floor((mi + 2)/12) + y), mod(mi + 2,12), (d - floor((mi*306 + 5)/10) + 1)
   end
-  ]]    
+  ]]
   -- day fraction from time
   local function makedayfrc(h,r,s,t)
     return ((h*60 + r)*60 + s)*TICKSPERSEC + t
@@ -215,7 +215,8 @@
   local function getequivyear(y)
     assert(not yt)
     yt = {}
-    local de, dw, dy = date_epoch:copy()
+    local de = date_epoch:copy()
+    local dw, dy
     for _ = 0, 3000 do
       de:setyear(de:getyear() + 1, 1, 1)
       dy = de:getyear()
@@ -294,7 +295,7 @@
     if is then self.e, self.i = self.i, 1+ie; if f then f(unpack(self)) end return self end
   end
    local function date_parse(str)
-    local y,m,d, h,r,s,  z,  w,u, j,  e,  k,  x,c,  dn,df;
+    local y,m,d, h,r,s,  z,  w,u, j,  e,  x,c,  dn,df
     local sw = newstrwalker(gsub(gsub(str, "(%b())", ""),"^(%s*)","")) -- remove comment, trim leading space
     --local function error_out() print(y,m,d,h,r,s) end
     local function error_dup(q) --[[error_out()]] error("duplicate value: " .. (q or "") .. sw:aimchr()) end
@@ -317,7 +318,7 @@
       or sw:finish() or (sw"^%s*$" or sw"^%s*[Zz]%s*$" or sw("^%s-([%+%-])(%d%d):?(%d%d)%s*$",setzc) or sw("^%s*([%+%-])(%d%d)%s*$",setzn))
       )  )
     then --print(y,m,d,h,r,s,z,w,u,j)
-    sw:restart(); y,m,d,h,r,s,z,w,u,j = nil;
+    sw:restart(); y,m,d,h,r,s,z,w,u,j = nil,nil,nil,nil,nil,nil,nil,nil,nil,nil
       repeat -- print(sw:aimchr())
         if sw("^[tT:]?%s*(%d%d?):",seth) then --print("$Time")
           _ = sw("^%s*(%d%d?)",setr) and sw("^%s*:%s*(%d%d?)",sets) and sw("^(%.%d+)",adds)
@@ -336,9 +337,7 @@
           elseif inlist(x, sl_timezone, 2, sw) then
             c = fix(sw[0]) -- ignore gmt and utc
             if c ~= 0 then setz(c, x) end
-          elseif inlist(x, sl_weekdays, 2, sw) then
-            k = sw[0]
-          else
+          elseif not inlist(x, sl_weekdays, 2, sw) then
             sw:back()
             -- am pm bce ad ce bc
             if sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*[Ee]%s*(%2)%s*") or sw("^([bB])%s*(%.?)%s*[Cc]%s*(%2)%s*") then
@@ -582,7 +581,7 @@
     -- Misc --
     -- Year, if year is in BCE, prints the BCE Year representation, otherwise result is similar to "%Y" (1 BCE, 40 BCE)
     ['%\b']=function(self) local x = self:getyear() return fmt("%.4d%s", x>0 and x or (-x+1), x>0 and "" or " BCE") end,
-    -- Seconds including fraction (59.998, 01.123) 
+    -- Seconds including fraction (59.998, 01.123)
     ['%\f']=function(self) local x = self:getfracsec() return fmt("%s%.9f",x >= 10 and "" or "0", x) end,
     -- percent character %
     ['%%']=function(self) return "%" end,

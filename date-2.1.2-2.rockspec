@@ -1,5 +1,5 @@
 package = "date"
-version = "2.1.2-1"
+version = "2.1.2-2"
 
 description = {
    summary = "Date & Time module for Lua 5.x",
@@ -24,7 +24,7 @@ source = {
 build = {
    type = "builtin",
    modules = {
-      date = "date.lua"
+      date = "src/date.lua"
    }
 }
 

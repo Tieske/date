@@ -1,28 +1,29 @@
-language: erlang
+language: python
+sudo: false
 
 env:
-  - LUA="luajit-2.0.0-beta9"
+  - LUA="lua 5.1"
+  - LUA="lua 5.2"
+  - LUA="lua 5.3"
+  - LUA="luajit 2.0"
+  - LUA="luajit 2.0 --compat 5.2"
+  - LUA="luajit 2.1"
+  - LUA="luajit 2.1 --compat 5.2"
+
+before_install:
+  - pip install hererocks
+  - hererocks here -r^ --$LUA
+  - source here/bin/activate
+  - luarocks install luacheck
+  - luarocks install busted
+  - luarocks install luacov-coveralls
 
 install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq git luajit luarocks
-  - sudo ln -s /usr/bin/luajit-2.0.0-beta9 /usr/bin/luajit
-  - sudo luarocks install busted
-  - git clone git://github.com/Tieske/date.git
-  - cd date
+  - luarocks make
 
-script: "sudo busted"
+script:
+  - luacheck .
+  - busted
 
-notifications:
-  webhooks:
-    - http://exobot.herokuapp.com/hubot/travis
-  recipients:
-    - thijs@thijsschreijer.nl
-  email:
-    on_success: always
-    on_failure: always
-    
-branches:
-  except:
-    - gh-pages
-    
+after_success:
+  - luacov-coveralls
