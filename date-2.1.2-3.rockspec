@@ -25,6 +25,7 @@ build = {
    type = "builtin",
    modules = {
       date = "src/date.lua"
-   }
+   },
+   copy_directories = { "docs" },
 }
 

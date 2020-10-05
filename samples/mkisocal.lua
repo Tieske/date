@@ -15,7 +15,7 @@ local htm_yearfoot = [[</table>]]
 function makecalendar(year, iow)
 	local d = date():setisoyear(year,1,1)
 	iow(htm_yearhead)
-	iow("<!--".. d .. "-->\n")	
+	iow("<!--".. d .. "-->\n")
 	while d:getisoyear() == year do
 		iow(d:fmt("<tr><td>%G</td><td>%V<br/><small class='s'>%Y-%j</small></td>"))
 		repeat	iow(d:fmt("<td>%u<br/><small class='s'>%b %d %Y</small></td>"))
@@ -23,7 +23,7 @@ function makecalendar(year, iow)
 		iow("</tr>\n")
 	end
 	iow(htm_yearfoot)
-			
+
 end
 
 

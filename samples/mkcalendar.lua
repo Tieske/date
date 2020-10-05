@@ -32,7 +32,7 @@ local htm_head = [[
 	td {vertical-align: middle; text-align:center;}
 	td.sun {color: red;}
 	td.sat {color: blue;}
-</style>	
+</style>
 <html>
 ]]
 local htm_yearhead = '\n<table align="left">'
@@ -40,7 +40,7 @@ local htm_monhead  = '\n<tr><th colspan = "7">%s, %s</th></tr><tr><td>sun</td><t
 local htm_monweek  = '\n<tr><td class="sun">%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class="sat">%s</td></tr>'
 local htm_yearfoot = '\n</table>'
 function makecalendar(y, iox)
-	iox:write(htm_yearhead)	
+	iox:write(htm_yearhead)
 	for i = 1, 12 do
 		local tm = makemonth(y, i)
 		iox:write(string.format(htm_monhead, tm.name, tm.year))
@@ -49,7 +49,7 @@ function makecalendar(y, iox)
 		end
 	end
 	iox:write(htm_yearfoot)
-			
+
 end
 
 io.stdout:write(htm_head)
