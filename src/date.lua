@@ -196,7 +196,7 @@
   local date = {}
   setmetatable(date, date)
 -- Version:  VMMMRRRR; V-Major, M-Minor, R-Revision;  e.g. 5.45.321 == 50450321
-  date.version = 20010002 -- 2.1.2
+  date.version = 20010003 -- 2.1.3
 --#end -- not DATE_OBJECT_AFX
 --[[ THE DATE OBJECT ]]--
   local dobj = {}

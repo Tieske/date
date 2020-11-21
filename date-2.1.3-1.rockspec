@@ -1,5 +1,5 @@
 package = "date"
-version = "2.1.2-3"
+version = "2.1.3-1"
 
 description = {
    summary = "Date & Time module for Lua 5.x",
@@ -17,8 +17,8 @@ dependencies = {
 }
 
 source = {
-   url = "https://github.com/Tieske/date/archive/version_2.1.2.tar.gz",
-   dir = "date-version_2.1.2",
+   url = "git://github.com/Tieske/date/",
+   tag = "version_2.1.3",
 }
 
 build = {

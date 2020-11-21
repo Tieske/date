@@ -29,6 +29,7 @@ Tests are located in the `spec` directory and can be run using [busted](http://o
 
 ## Changes:
 
+- v2.1.3 fix rockspec for Lua 5.4
 - v2.1.2 fix scientific notation [#9](https://github.com/Tieske/date/pull/9), now available for Lua 5.3
 - v2.1.1 fix for '>=' operator [#3](https://github.com/Tieske/date/pull/3), added test suite, added Travis CI, license MIT
 - v2.1 Lua 5.2 support. Global 'date' will no longer be set.
