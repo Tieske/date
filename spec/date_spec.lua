@@ -35,7 +35,7 @@ describe("Testing the 'date' module", function()
 
     -- Supported ISO 8601 Formats.
     -- YYYY-MM-DDwhere YYYY is the year, MM is the month of the year, and DD is the
-	-- day of the month.
+    -- day of the month.
     assert(date("2000-12-31")==date(2000,12,31))
     assert(date(" 20001231 ")==date(2000,12,31)) -- Compact version
     -- YYYY-DDDwhere YYYY is the year, DDD is the day of the year.
