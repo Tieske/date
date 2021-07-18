@@ -1,6 +1,6 @@
 # LuaDate v2.1
 
-[![Build Status](https://travis-ci.org/Tieske/date.svg?branch=master)](https://travis-ci.org/Tieske/date)
+[![Build Status](https://travis-ci.com/Tieske/date.svg?branch=master)](https://travis-ci.com/Tieske/date)
 [![Coverage Status](https://coveralls.io/repos/github/Tieske/date/badge.svg?branch=master)](https://coveralls.io/github/Tieske/date?branch=master)
 
 Lua Date and Time module for Lua 5.x.
