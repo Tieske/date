@@ -1101,14 +1101,14 @@ time as 37815000000 ticks and 4 days. 4 days becuase:
             <dt><span class="term">The <code class="varname">a &lt; b</code>
             operation.</span></dt>
 
-            <dd>Returns <code class="constant">true</code> if date value of a is later
+            <dd>Returns <code class="constant">true</code> if date value of a is smaller/older
             than date value of b. <code class="varname">a &gt; b</code> is equivalent to
             <code class="varname">b &lt; a</code>.</dd>
 
             <dt><span class="term">The <code class="varname">a &lt;= b</code>
             operation.</span></dt>
 
-            <dd>Returns <code class="constant">true</code> if date value of a is later
+            <dd>Returns <code class="constant">true</code> if date value of a is smaller/older
             than or equal to the date value of b. <code class="varname">a &gt;= b</code>
             is equivalent to <code class="varname">b &lt;= a</code>.</dd>
 
@@ -1128,14 +1128,14 @@ time as 37815000000 ticks and 4 days. 4 days becuase:
             <dt><span class="term">The <code class="varname">a - b</code>
             operation.</span></dt>
 
-            <dd>Subtract the date and time value of <code class="varname">a</code> to
-            date and time value of <code class="varname">b</code>.</dd>
+            <dd>Subtract the date and time value of <code class="varname">b</code> from
+            date and time value of <code class="varname">a</code>.</dd>
 
             <dt><span class="term">The <code class="varname">a + b</code>
             operation.</span></dt>
 
-            <dd>Add the date and time value of <code class="varname">a</code> to date and
-            time value of <code class="varname">b</code>.</dd>
+            <dd>Add the date and time value of <code class="varname">b</code> to date and
+            time value of <code class="varname">a</code>.</dd>
           </dl>
         </div><code class="varname">a</code> and <code class="varname">b</code> must be a
         parsable date value or an error rises
@@ -1162,7 +1162,7 @@ assert(a == b and (not(a ~= b)))
 
 assert((a .. 565369) == (b .. 565369))
 assert((a .. "????") == (b .. "????"))
-                                
+
 </pre>
       </div>
 
