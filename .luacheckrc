@@ -21,11 +21,15 @@ ignore = {
     --"6.", -- ignore whitespace warnings
 }
 
+include_files = {
+    "**/*.lua",
+    "*.rockspec",
+    ".busted",
+    ".luacheckrc",
+}
 
 exclude_files = {
     "here/**",
     "samples/**",
-    --"spec/fixtures/invalid-module.lua",
-    --"spec-old-api/fixtures/invalid-module.lua",
 }
 
