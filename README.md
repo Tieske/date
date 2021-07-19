@@ -1,4 +1,4 @@
-# LuaDate v2.1
+# LuaDate v2.2
 
 [![Build Status](https://travis-ci.com/Tieske/date.svg?branch=master)](https://travis-ci.com/Tieske/date)
 [![Coverage Status](https://coveralls.io/repos/github/Tieske/date/badge.svg?branch=master)](https://coveralls.io/github/Tieske/date?branch=master)
@@ -27,7 +27,21 @@ Documentation is available in the `doc` folder, or [online at Github](http://tie
 
 Tests are located in the `spec` directory and can be run using [busted](http://olivinelabs.com/busted/).
 
-## Changes:
+## Changelog:
+
+### Releasing:
+- search for "copyright" and update all occurences with proper years
+- update version in:
+  - `README.md` (at the top)
+  - `date.lua` (at the top, and exported field `date.version`)
+  - `index.html` (appr. line 20)
+- update rockspec
+- commit as `release x.y.z` (omit trailing 0)
+- tag as `version_x.y.z` (omit trailing 0)
+- push commit & tags
+- upload rock to luarocks
+
+### Changes:
 
 - v2.2 add 'centuryflip' to set 2 digit year interpretation [#26](https://github.com/Tieske/date/pull/26)
 - v2.1.3 fix rockspec for Lua 5.4

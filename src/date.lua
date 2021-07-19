@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------
 -- Module for date and time calculations
 --
--- Version 2.1.2
+-- Version 2.2
 -- Copyright (C) 2005-2006, by Jas Latrix (jastejada@yahoo.com)
 -- Copyright (C) 2013-2021, by Thijs Schreijer
 -- Licensed under MIT, http://opensource.org/licenses/MIT
@@ -198,7 +198,12 @@
   local date = {}
   setmetatable(date, date)
 -- Version:  VMMMRRRR; V-Major, M-Minor, R-Revision;  e.g. 5.45.321 == 50450321
-  date.version = 20010003 -- 2.1.3
+  do
+    local major = 2
+    local minor = 2
+    local revision = 0
+    date.version = major * 10000000 + minor * 10000 + revision
+  end
 --#end -- not DATE_OBJECT_AFX
 --[[ THE DATE OBJECT ]]--
   local dobj = {}
