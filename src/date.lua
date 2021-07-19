@@ -21,6 +21,8 @@
   local DAYNUM_MIN = -365242500 -- Mon Jan 01 1000000 BCE 00:00:00
   local DAYNUM_DEF =  0 -- Mon Jan 01 0001 00:00:00
   local _;
+--[[ GLOBAL SETTINGS ]]--
+  local centuryflip = 0 -- year >= centuryflip == 1900, < centuryflip == 2000
 --[[ LOCAL ARE FASTER ]]--
   local type     = type
   local pairs    = pairs
@@ -325,7 +327,7 @@
         elseif sw("^(%d+)[/\\%s,-]?%s*") then --print("$Digits")
           x, c = tonumber(sw[1]), len(sw[1])
           if (x >= 70) or (m and d and (not y)) or (c > 3) then
-            sety( x + ((x >= 100 or c>3) and 0 or x<41 and 2000 or 1900) )
+            sety( x + ((x >= 100 or c>3) and 0 or x<centuryflip and 2000 or 1900) )
           else
             if m then setd(x) else m = x end
           end
@@ -705,6 +707,11 @@
   function date.epoch() return date_epoch:copy()  end
 
   function date.isodate(y,w,d) return date_new(makedaynum_isoywd(y + 0, w and (w+0) or 1, d and (d+0) or 1), 0)  end
+  function date.setcenturyflip(y)
+    if y ~= floor(y) or y < 0 or y > 100 then date_error_arg() end
+    centuryflip = y
+  end
+  function date.getcenturyflip() return centuryflip end
 
 -- Internal functions
   function date.fmt(str) if str then fmtstr = str end; return fmtstr end

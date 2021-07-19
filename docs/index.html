@@ -535,8 +535,65 @@ assert(date.epoch()==date("jan 1 1970"))
           <div class="titlepage">
             <div>
               <div>
+                <h4 class="title"><a name="date.getcenturyflip" id=
+                "date.getcenturyflip"></a>6.1.3.&nbsp;getcenturyflip</h4>
+              </div>
+            </div>
+          </div><a class="indexterm" name="id352557" id="id352557"></a>Returns the current
+          global setting for centuryflip.
+
+          <div class="variablelist">
+            <dl>
+              <dt><span class="term"><span class=
+              "bold"><strong>Syntax</strong></span></span></dt>
+
+              <dd>
+                <pre class="programlisting">
+local centuryflip = date.<span class="bold"><strong>getcenturyflip</strong></span>()
+</pre>
+              </dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Arguments</strong></span></span></dt>
+
+              <dd>
+                <div class="variablelist">
+                  <dl>
+                    <dt><span class="term"><span class=
+                    "emphasis"><em>none</em></span></span></dt>
+                  </dl>
+                </div>
+              </dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Returns</strong></span></span></dt>
+
+              <dd>The currrent global centuryflip value.</dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Remarks</strong></span></span></dt>
+
+              <dd>centuryflip is a global setting and hence should only be set
+              by an application, never by a library.</dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Example</strong></span></span></dt>
+
+              <dd>
+                <pre class="programlisting">
+local centuryflip = date.getcenturyflip()
+</pre>
+              </dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="section" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
                 <h4 class="title"><a name="date.isleapyear" id=
-                "date.isleapyear"></a>6.1.3.&nbsp;isleapyear</h4>
+                "date.isleapyear"></a>6.1.4.&nbsp;isleapyear</h4>
               </div>
             </div>
           </div><a class="indexterm" name="id352556" id="id352556"></a>Check if a number
@@ -597,6 +654,82 @@ assert(date.isleapyear(1776))
             </dl>
           </div>
         </div>
+
+        <div class="section" lang="en" xml:lang="en">
+          <div class="titlepage">
+            <div>
+              <div>
+                <h4 class="title"><a name="date.setcenturyflip" id=
+                "date.setcenturyflip"></a>6.1.5.&nbsp;setcenturyflip</h4>
+              </div>
+            </div>
+          </div><a class="indexterm" name="id352555" id="id352555"></a>Sets the global
+          value for centuryflip. Century flip determines how 2-digit years are
+          interpreted when parsing string values. Any value smaller than centuryflip
+          will be considered 20xx, and values greater or equal will become 19xx.
+
+          <div>The default value is 0, so all 2 digit years are considered 19xx.</div>
+          <div class="variablelist">
+            <dl>
+              <dt><span class="term"><span class=
+              "bold"><strong>Syntax</strong></span></span></dt>
+
+              <dd>
+                <pre class="programlisting">
+date.<span class="bold"><strong>setcenturyflip</strong></span>(<em class=
+"parameter"><code>century_flip</code></em>)
+</pre>
+              </dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Arguments</strong></span></span></dt>
+
+              <dd>
+                <div class="variablelist">
+                  <dl>
+                    <dt><span class="term"><span class=
+                    "emphasis"><em>century_flip</em></span></span></dt>
+
+                    <dd>a number from 0 to 100</a></dd>
+                  </dl>
+                </div>
+              </dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Returns</strong></span></span></dt>
+
+              <dd>Nothing.</dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Remarks</strong></span></span></dt>
+
+              <dd>centuryflip is a global setting and hence should only be set
+              by an application, never by a library.</dd>
+
+              <dt><span class="term"><span class=
+              "bold"><strong>Example</strong></span></span></dt>
+
+              <dd>
+                <pre class="programlisting">
+date.setcenturyflip(0)
+assert(date("01-01-00")==date(1900,01,01))
+assert(date("01-01-50")==date(1950,01,01))
+assert(date("01-01-99")==date(1999,01,01))
+date.setcenturyflip(100)
+assert(date("01-01-00")==date(2000,01,01))
+assert(date("01-01-50")==date(2050,01,01))
+assert(date("01-01-99")==date(2099,01,01))
+date.setcenturyflip(50)
+assert(date("01-01-00")==date(2000,01,01))
+assert(date("01-01-49")==date(2049,01,01))
+assert(date("01-01-50")==date(1950,01,01))
+assert(date("01-01-99")==date(1999,01,01))
+</pre>
+              </dd>
+            </dl>
+          </div>
+        </div>
+
       </div>
 
       <div class="section" lang="en" xml:lang="en">
@@ -786,7 +919,9 @@ assert(date("Jul 27 2006 PDT") == date(2006,07,27,7,0,0))
 </pre>
 
                       <p><b>Date Format.&nbsp;</b> Short dates can use either a "/" or
-                      "-" date separator, but must follow the month/day/year format</p>
+                      "-" date separator, but must follow the month/day/year format. 2
+                      digit years are interpreted according to the global
+                      <a href="#date.setcenturyflip">centuryflip setting</a>.</p>
                       <pre class="programlisting">
 assert(date("02-03-04")==date(1904,02,03))
 assert(date("12/25/98")==date(1998,12,25))

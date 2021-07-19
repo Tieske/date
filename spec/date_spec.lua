@@ -22,12 +22,12 @@ describe("Testing the 'date' module", function()
     assert(date("Jul 27 2006 PDT") == date(2006,07,27,7,0,0))
     -- Date Format.  Short dates can use either a "/" or "-" date separator,
     -- but must follow the month/day/year format
-    assert(date("02-03-04")==date(2004,02,03))
+    assert(date("02-03-04")==date(1904,02,03))
     assert(date("12/25/98")==date(1998,12,25))
     -- Long dates of the form "July 10 1995" can be given with the year, month,
     -- and day in any order, and the year in 2-digit or 4-digit form. If you use
     -- the 2-digit form, the year must be greater than or equal to 70.
-    assert(date("Feb-03-04")==date(2004,02,03))
+    assert(date("Feb-03-04")==date(1904,02,03))
     assert(date("December 25 1998")==date(1998,12,25))
     -- Follow the year with BC or BCE to indicate that the year is before common era.
     assert(date("Feb 3 0003 BC")==date(-2,02,03))
@@ -67,6 +67,27 @@ describe("Testing the 'date' module", function()
     local d = date({year=2009, month=11, day=13, min=6})
     assert(d == date("Nov 13 2009 00:06:00"))
     local e = date()              assert(e)
+  end)
+
+  it("Tests century-flip", function()
+    local old = date.getcenturyflip()
+    finally(function()
+      date.setcenturyflip(old)
+    end)
+
+    assert(old==0)
+    assert(date("01-01-00")==date(1900,01,01))
+    assert(date("01-01-50")==date(1950,01,01))
+    assert(date("01-01-99")==date(1999,01,01))
+    date.setcenturyflip(100)
+    assert(date("01-01-00")==date(2000,01,01))
+    assert(date("01-01-50")==date(2050,01,01))
+    assert(date("01-01-99")==date(2099,01,01))
+    date.setcenturyflip(50)
+    assert(date("01-01-00")==date(2000,01,01))
+    assert(date("01-01-49")==date(2049,01,01))
+    assert(date("01-01-50")==date(1950,01,01))
+    assert(date("01-01-99")==date(1999,01,01))
   end)
 
   it("Tests leap year", function()
