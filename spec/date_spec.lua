@@ -47,13 +47,21 @@ describe("Testing the 'date' module", function()
     assert(date("  1997W017")==date(1997,01,05)) -- Compact version
     -- DATE HH:MM:SS.SSSWhere DATE is the date format discuss above, HH is the hour,
     -- MM is the miute, SS.SSS is the seconds (fraction is optional).
+    -- these are not ISO 8601 conformant:  Space between date and time is no longer allowed (but is in RFC 3339).
     assert(date("1995-02-04 24:00:51.536")==date(1995,2,5,0,0,51.536))
+    assert(date("1995-02-04 24:00:51,536")==date(1995,2,5,0,0,51.536))
     assert(date("1976-W01-1 12:12:12.123")==date(1975,12,29,12,12,12.123))
     assert(date("1995-035 23:59:59.99999")==date(1995,02,04,23,59,59.99999))
-    -- Compact version separated by latin capital letter T
+    -- "basic format" (ie more compact), date and time separated by the Latin capital T
     assert(date("  19950205T000051.536  ")==date(1995,2,5,0,0,51.536))
+    assert(date("  19950205T000051,536  ")==date(1995,2,5,0,0,51.536))
     assert(date("  1976W011T121212.123  ")==date(1975,12,29,12,12,12.123))
     assert(date(" 1995035T235959.99999  ")==date(1995,02,04,23,59,59.99999))
+    -- "extended format" (ie more human readable), date and time separated by the Latin capital T
+    assert(date("1995-02-05T00:00:51.536")==date(1995,2,5,0,0,51.536))
+    assert(date("1995-02-05T00:00:51,536")==date(1995,2,5,0,0,51.536))
+    assert(date("1976-W01-1T12:12:12.123")==date(1975,12,29,12,12,12.123))
+    assert(date("1995-035T23:59:59.99999")==date(1995,02,04,23,59,59.99999)) -- not ISO 8601 conformant day spec
     -- DATE TIME +HH:MM, DATE TIME -HHMM, DATE TIME Z,Where DATE and TIME is the date
     -- and time format discuss above. First character is a sign "+" (east of UTC) or "-"
     -- (west of UTC). HH and MM is Hours and minutes offset. The Z stands for the zero offset.
