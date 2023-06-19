@@ -314,21 +314,21 @@
     local function seth(q) h = h and error_dup() or tonumber(q) end
     local function setr(q) r = r and error_dup() or tonumber(q) end
     local function sets(q) s = s and error_dup() or tonumber(q) end
-    local function adds(q) s = s + tonumber(q) end
+    local function adds(q) s = s + tonumber("."..string.sub(q,2,-1)) end
     local function setj(q) j = (m or w or j) and error_dup() or tonumber(q); end
     local function setz(q) z = (z ~= 0 and z) and error_dup() or q end
     local function setzn(zs,zn) zn = tonumber(zn); setz( ((zn<24) and (zn*60) or (mod(zn,100) + floor(zn/100) * 60))*( zs=='+' and -1 or 1) ) end
     local function setzc(zs,zh,zm) setz( ((tonumber(zh)*60) + tonumber(zm))*( zs=='+' and -1 or 1) ) end
 
     if not (sw("^(%d%d%d%d)",sety) and (sw("^(%-?)(%d%d)%1(%d%d)",function(_,a,b) setm(tonumber(a)); setd(tonumber(b)) end) or sw("^(%-?)[Ww](%d%d)%1(%d?)",function(_,a,b) w, u = tonumber(a), tonumber(b or 1) end) or sw("^%-?(%d%d%d)",setj) or sw("^%-?(%d%d)",function(a) setm(a);setd(1) end))
-    and ((sw("^%s*[Tt]?(%d%d):?",seth) and sw("^(%d%d):?",setr) and sw("^(%d%d)",sets) and sw("^(%.%d+)",adds))
+    and ((sw("^%s*[Tt]?(%d%d):?",seth) and sw("^(%d%d):?",setr) and sw("^(%d%d)",sets) and sw("^([,%.]%d+)",adds))
       or sw:finish() or (sw"^%s*$" or sw"^%s*[Zz]%s*$" or sw("^%s-([%+%-])(%d%d):?(%d%d)%s*$",setzc) or sw("^%s*([%+%-])(%d%d)%s*$",setzn))
       )  )
     then --print(y,m,d,h,r,s,z,w,u,j)
     sw:restart(); y,m,d,h,r,s,z,w,u,j = nil,nil,nil,nil,nil,nil,nil,nil,nil,nil
       repeat -- print(sw:aimchr())
         if sw("^[tT:]?%s*(%d%d?):",seth) then --print("$Time")
-          _ = sw("^%s*(%d%d?)",setr) and sw("^%s*:%s*(%d%d?)",sets) and sw("^(%.%d+)",adds)
+          _ = sw("^%s*(%d%d?)",setr) and sw("^%s*:%s*(%d%d?)",sets) and sw("^([,%.]%d+)",adds)
         elseif sw("^(%d+)[/\\%s,-]?%s*") then --print("$Digits")
           x, c = tonumber(sw[1]), len(sw[1])
           if (x >= 70) or (m and d and (not y)) or (c > 3) then
