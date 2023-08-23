@@ -72,6 +72,10 @@ describe("Testing the 'date' module", function()
     assert(date("1976-W01-1 13:00+01:00")==date(1975,12,29,12))
     assert(date("1976-W01-1 0700-0500  ")==date(1975,12,29,12))
 
+    assert(date("2023-08-22T17:40:23.308574-05:00")==date(2023,08,22,22,40,23.308574000))
+    assert(date("2023-08-22T19:40:23.308574+08:45")==date(2023,08,22,10,55,23.308574000))
+    assert(date("2023-08-22T19:40:23-09:30")==date(2023,08,23,5,10,23))
+
     local a = date(2006, 8, 13)   assert(a == date("Sun Aug 13 2006"))
     local b = date("Jun 13 1999") assert(b == date(1999, 6, 13))
     local c = date(1234483200)    assert(c == date("Feb 13 2009"))
