@@ -301,7 +301,7 @@
     local is, ie; is, ie, self[1], self[2], self[3], self[4], self[5] = find(self.s, s, self.i)
     if is then self.e, self.i = self.i, 1+ie; if f then f(unpack(self)) end return self end
   end
-   local function date_parse(str)
+  local function date_parse(str)
     local y,m,d, h,r,s,  z,  w,u, j,  e,  x,c,  dn,df
     local sw = newstrwalker(gsub(gsub(str, "(%b())", ""),"^(%s*)","")) -- remove comment, trim leading space
     --local function error_out() print(y,m,d,h,r,s) end
@@ -343,7 +343,7 @@
             setm(mod(sw[0],12)+1)
           elseif inlist(x, sl_timezone, 2, sw) then
             c = fix(sw[0]) -- ignore gmt and utc
-            if c ~= 0 then setz(c, x) end
+            if c ~= 0 then setz(c) end
           elseif not inlist(x, sl_weekdays, 2, sw) then
             sw:back()
             -- am pm bce ad ce bc
