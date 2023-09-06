@@ -375,7 +375,7 @@
     df = makedayfrc(h or 0, r or 0, s or 0, 0) + ((z or 0)*TICKSPERMIN)
     --print("Zone",h,r,s,z,m,d,y,df)
     return date_new(dn, df) -- no need to :normalize();
-   end
+  end
   local function date_fromtable(v)
     local y, m, d = fix(v.year), getmontharg(v.month), fix(v.day)
     local h, r, s, t = tonumber(v.hour), tonumber(v.min), tonumber(v.sec), tonumber(v.ticks)
