@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------
 -- Module for date and time calculations
 --
--- Version 2.2
+-- Version 2.2.1
 -- Copyright (C) 2005-2006, by Jas Latrix (jastejada@yahoo.com)
 -- Copyright (C) 2013-2021, by Thijs Schreijer
 -- Licensed under MIT, http://opensource.org/licenses/MIT
@@ -201,7 +201,7 @@
   do
     local major = 2
     local minor = 2
-    local revision = 0
+    local revision = 1
     date.version = major * 10000000 + minor * 10000 + revision
   end
 --#end -- not DATE_OBJECT_AFX

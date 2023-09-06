@@ -37,6 +37,7 @@ Tests are located in the `spec` directory and can be run using [busted](http://o
   - `README.md` (at the top)
   - `date.lua` (at the top, and exported field `date.version`)
   - `index.html` (appr. line 20)
+- update changelog below
 - update rockspec
 - commit as `release x.y.z` (omit trailing 0)
 - tag as `version_x.y.z` (omit trailing 0)
@@ -45,9 +46,20 @@ Tests are located in the `spec` directory and can be run using [busted](http://o
 
 ### Changes:
 
-- v2.2 add 'centuryflip' to set 2 digit year interpretation [#26](https://github.com/Tieske/date/pull/26)
-- v2.1.3 fix rockspec for Lua 5.4
-- v2.1.2 fix scientific notation [#9](https://github.com/Tieske/date/pull/9), now available for Lua 5.3
-- v2.1.1 fix for '>=' operator [#3](https://github.com/Tieske/date/pull/3), added test suite, added Travis CI, license MIT
-- v2.1 Lua 5.2 support. Global 'date' will no longer be set.
-- v2.0 original by Jas Latrix
+#### v2.2.1 released 6-Sep-2023
+  - fix parsing timezone offset after a decimal number [#33](https://github.com/Tieske/date/pull/33)
+  - also accept "," as a decimal separator [#31](https://github.com/Tieske/date/pull/31)
+  - fix bad function call (no functional impact) [#34](https://github.com/Tieske/date/pull/34)
+
+#### v2.2
+  - add 'centuryflip' to set 2 digit year interpretation [#26](https://github.com/Tieske/date/pull/26)
+#### v2.1.3
+  - fix rockspec for Lua 5.4
+#### v2.1.2
+  - fix scientific notation [#9](https://github.com/Tieske/date/pull/9), now available for Lua 5.3
+#### v2.1.1
+  - fix for '>=' operator [#3](https://github.com/Tieske/date/pull/3), added test suite, added Travis CI, license MIT
+#### v2.1
+  - Lua 5.2 support. Global 'date' will no longer be set.
+#### v2.0
+  - original by Jas Latrix
