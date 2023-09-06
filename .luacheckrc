@@ -1,35 +1,31 @@
---std             = "ngx_lua+busted"
 unused_args     = false
 redefined       = false
 max_line_length = false
 
-
 globals = {
-    --"_KONG",
-    --"kong",
-    --"ngx.IS_CLI",
+--    "ngx",
 }
 
-
 not_globals = {
+    -- deprecated Lua 5.0 functions
     "string.len",
     "table.getn",
 }
 
-
-ignore = {
-    --"6.", -- ignore whitespace warnings
+include_files = {
+  "**/*.lua",
+  "**/*.rockspec",
+  ".busted",
+  ".luacheckrc",
 }
 
-include_files = {
-    "**/*.lua",
-    "*.rockspec",
-    ".busted",
-    ".luacheckrc",
+files["spec/**/*.lua"] = {
+    std = "+busted",
 }
 
 exclude_files = {
-    "here/**",
-    "samples/**",
+    -- The Github Actions Lua Environment
+    ".lua",
+    ".luarocks",
+    ".install",
 }
-

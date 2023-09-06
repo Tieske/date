@@ -120,8 +120,8 @@ describe("Testing the 'date' module", function()
     local c = date("20131230 00:57:04")  -- same as a
     assert(a < b)
     assert(a <= b)
-    assert(not (a > b))
-    assert(not (a >= b))
+    assert(not (a > b))  -- luacheck: ignore
+    assert(not (a >= b)) -- luacheck: ignore
     assert(a == c)
     assert(a <= c)
     assert(a >= c)
@@ -140,13 +140,13 @@ describe("Testing the 'date' module", function()
 
     assert(a >  b and b <  a)
     assert(a >= b and b <= a)
-    assert(a ~= b and (not(a == b)))
+    assert(a ~= b and (not(a == b)))  -- luacheck: ignore
 
     a = b:copy()
 
     assert(not (a >  b and b <  a))
     assert(a >= b and b <= a)
-    assert(a == b and (not(a ~= b)))
+    assert(a == b and (not(a ~= b)))  -- luacheck: ignore
 
     assert((a .. 565369) == (b .. 565369))
     assert((a .. "????") == (b .. "????"))
