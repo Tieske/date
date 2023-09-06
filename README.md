@@ -1,6 +1,6 @@
 # LuaDate v2.2
 
-[![Unix build](https://img.shields.io/github/actions/workflow/status/Tieske/date/unix_build.yml?branch=main&label=Unix%20build&logo=linux)](https://github.com/Tieske/date/actions/workflows/unix_build.yml)
+[![Unix build](https://img.shields.io/github/actions/workflow/status/Tieske/date/unix_build.yml?branch=master&label=Unix%20build&logo=linux)](https://github.com/Tieske/date/actions/workflows/unix_build.yml)
 [![Coveralls code coverage](https://img.shields.io/coveralls/github/Tieske/date?logo=coveralls)](https://coveralls.io/github/Tieske/date)
 [![Lint](https://github.com/Tieske/date/workflows/Lint/badge.svg)](https://github.com/Tieske/date/actions/workflows/lint.yml)
 [![SemVer](https://img.shields.io/github/v/tag/Tieske/date?color=brightgreen&label=SemVer&logo=semver&sort=semver)](CHANGELOG.md)
